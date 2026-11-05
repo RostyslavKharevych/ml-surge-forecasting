@@ -49,7 +49,7 @@ class Categories2025Tests(unittest.TestCase):
 
     def test_rb_forever_real_notice_preserves_both_dates(self):
         fixture = Path(__file__).parent / "fixtures/barclays_2025/rb-forever-tour.html"
-        rows, issues = parse_page(fixture.read_text(),
+        rows, issues = parse_page(fixture.read_text(encoding="utf-8"),
                                  "https://www.barclayscenter.com/events/detail/rb-forever-tour",
                                  ["2025-04-26"], year=2025)
         self.assertEqual(issues, [])
