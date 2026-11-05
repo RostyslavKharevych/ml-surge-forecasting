@@ -25,9 +25,9 @@ def page(name="Example", shows=None, description=""):
 class ExtractionTests(unittest.TestCase):
     def test_real_page_fixtures(self):
         directory = Path(__file__).parent / "fixtures" / "barclays_2024"
-        for case in json.loads((directory / "cases.json").read_text()):
+        for case in json.loads((directory / "cases.json").read_text(encoding="utf-8")):
             with self.subTest(page=case["file"]):
-                rows, issues = parse_page((directory / case["file"]).read_text(),
+                rows, issues = parse_page((directory / case["file"]).read_text(encoding="utf-8"),
                                          case["source_url"], case["calendar_dates"])
                 self.assertEqual(len(rows), case["expected_showings"])
                 self.assertEqual([i["issue"] for i in issues], case.get("expected_issues", []))
@@ -164,7 +164,7 @@ class ExtractionTests(unittest.TestCase):
                  patch("src.ingest_events.time.sleep"), patch("builtins.print"):
                 result = run(manifest)
             self.assertEqual(result, 1)
-            summary = json.loads((root / "output/extraction_summary_all.json").read_text())
+            summary = json.loads((root / "output/extraction_summary_all.json").read_text(encoding="utf-8"))
             self.assertEqual(summary["failed_pages"], 1)
             with (root / "output/extraction_issues_all.csv").open() as stream:
                 issues = list(csv.DictReader(stream))

@@ -132,7 +132,7 @@ class EventYearTests(unittest.TestCase):
                     with (output / "events_all.csv").open() as stream:
                         rows = list(csv.DictReader(stream))
                     self.assertEqual(rows[0]["event_date"], f"{year}-01-18")
-                    summary = json.loads((output / "extraction_summary_all.json").read_text())
+                    summary = json.loads((output / "extraction_summary_all.json").read_text(encoding="utf-8"))
                     self.assertEqual(summary["year"], year)
                     self.assertEqual(Path(summary["manifest"]), manifest)
                     self.assertIn(f"barclays_{year}", rows[0]["raw_path"])
