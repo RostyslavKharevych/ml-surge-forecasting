@@ -129,9 +129,11 @@ the word "tour" alone do not establish a category.
 
 When these rules cannot determine a category, the parser consults
 `src/event_categories.json`, a manually reviewed mapping keyed by exact canonical
-event URL. It contains six approved entries: Disney On Ice (`family_show`),
-Ringling (`circus`), Harlem Globetrotters (`basketball`), and Kehlani, Iron Maiden,
-and Ed Sheeran (`concert`). Evidence comes from saved official event descriptions
+event URL. It contains 44 approved entries: the original six plus 30 additional
+mappings using existing labels and eight supported event types using new labels.
+The new labels are `community_event`, `music_dance_event`, `listening_party`,
+`boxing`, `sports_draft`, `bull_riding`, and `wrestling` (two WWE pages).
+Evidence comes from saved official event descriptions
 or event-specific metadata. Existing rule classifications always take precedence;
 unmapped events remain blank. Mapped rows use `category_basis=reviewed_url_mapping`
 and record the source field and supporting text in `category_evidence`.
@@ -141,8 +143,13 @@ Review the source content before adding entries; an artist name or "tour" alone
 is insufficient. The mapping is validated before extraction, copied into each
 raw run, and hashed in the summary. Replay uses the current reviewed mapping so
 saved responses can be reclassified; the mapping hash identifies the version.
-The approved mapping classifies 20 additional performances, reducing unknown
-categories from 96 to 76 without changing the 186 extracted showings.
+The first six mappings reduced unknown categories from 96 to 76. The additional
+38 mappings reduce unknowns to 32, covering 154 of the 186 performances. All
+23 uncertain URLs across 22 event names remain unmapped (Zach Bryan has two URLs).
+Mappings are URL-specific: reviewing Aventura's December page or Usher's December
+page does not classify their other pages. Descriptive evidence takes priority
+over conflicting metadata in reviewed entries: the boxing event is not a concert,
+and Billie Eilish's album listening party is distinct from a live concert.
 
 No confirmed-completed status is inferred from historical listings.
 Definite cancellation/postponement/rescheduling notices are preserved, while
