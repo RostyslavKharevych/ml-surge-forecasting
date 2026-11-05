@@ -1,4 +1,4 @@
-"""Discover Barclays Center 2024 event pages; no event detail requests are made."""
+"""Discover Barclays Center event pages for a selected year; no detail requests."""
 
 import argparse
 import csv
@@ -39,14 +39,14 @@ class EventLinks(HTMLParser):
                                      parts.path.rstrip("/"), "", "")))
 
 
-def parse_calendar(payload, month):
+def parse_calendar(payload, month, year=YEAR):
     """Return URL -> ISO calendar dates; reject unexpected schemas and dates."""
     if not isinstance(payload, dict):
         raise ValueError("Calendar response must be a date-to-HTML object")
     events = {}
     for date_text, fragment in payload.items():
         date = datetime.strptime(date_text, "%m-%d-%Y").date()
-        if date.year != YEAR or date.month != month:
+        if date.year != year or date.month != month:
             raise ValueError(f"Unexpected date for month {month}: {date_text}")
         if not isinstance(fragment, str):
             raise ValueError(f"Expected HTML string for {date_text}")
@@ -59,7 +59,7 @@ def parse_calendar(payload, month):
     return events
 
 
-def fetch_calendar(url, timeout, retries, raw_dir, month):
+def fetch_calendar(url, timeout, retries, raw_dir, month, year=YEAR):
     """Preserve response bytes, including HTTP error bodies, for each attempt."""
     attempts = []
     for attempt in range(1, retries + 2):
@@ -81,12 +81,12 @@ def fetch_calendar(url, timeout, retries, raw_dir, month):
                 raise
             finally:
                 if body is not None:
-                    raw_path = raw_dir / f"calendar_{YEAR}-{month:02d}_attempt_{attempt}.body"
+                    raw_path = raw_dir / f"calendar_{year}-{month:02d}_attempt_{attempt}.body"
                     raw_path.write_bytes(body)
                     record.update(raw_path=str(raw_path), sha256=hashlib.sha256(body).hexdigest())
             decoded = gzip.decompress(body) if encoding == "gzip" or body[:2] == b"\x1f\x8b" else body
             payload = json.loads(decoded)
-            events = parse_calendar(payload, month)
+            events = parse_calendar(payload, month, year)
             attempts.append(record)
             return events, len(payload), attempts, None
         except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
@@ -98,22 +98,22 @@ def fetch_calendar(url, timeout, retries, raw_dir, month):
             time.sleep(min(2 ** (attempt - 1), 8))
 
 
-def run(months, timeout=30, retries=2):
+def run(months, timeout=30, retries=2, year=YEAR):
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    raw_dir = RAW_DATA_DIR / "events" / f"barclays_{YEAR}" / run_id
+    raw_dir = RAW_DATA_DIR / "events" / f"barclays_{year}" / run_id
     raw_dir.mkdir(parents=True, exist_ok=False)
-    output_dir = INTERIM_DATA_DIR / "events" / f"barclays_{YEAR}"
+    output_dir = INTERIM_DATA_DIR / "events" / f"barclays_{year}"
     output_dir.mkdir(parents=True, exist_ok=True)
     events, provenance, summaries = {}, {}, []
     for month in sorted(set(months)):
-        url = f"{BASE_URL}/events/calendar/{YEAR}/{month}?v=2"
-        found, date_count, attempts, error = fetch_calendar(url, timeout, retries, raw_dir, month)
+        url = f"{BASE_URL}/events/calendar/{year}/{month}?v=2"
+        found, date_count, attempts, error = fetch_calendar(url, timeout, retries, raw_dir, month, year)
         summaries.append({"month": month, "request_url": url, "unique_urls": len(found),
                           "calendar_dates": date_count, "error": error, "attempts": attempts})
         for event_url, dates in found.items():
             events.setdefault(event_url, set()).update(dates)
             provenance.setdefault(event_url, set()).add(url)
-        print(f"{YEAR}-{month:02d}: {len(found)} URLs, {date_count} dates"
+        print(f"{year}-{month:02d}: {len(found)} URLs, {date_count} dates"
               + (f" FAILED: {error}" if error else ""), flush=True)
 
     # Separate names prevent a sample run from overwriting the full-year manifest.
@@ -129,7 +129,7 @@ def run(months, timeout=30, retries=2):
                              "source_calendar_urls": json.dumps(sorted(provenance[event_url])),
                              "run_id": run_id})
     failures = sum(item["error"] is not None for item in summaries)
-    summary = {"year": YEAR, "run_id": run_id, "months": summaries,
+    summary = {"year": year, "run_id": run_id, "months": summaries,
                "unique_urls": len(events), "failed_months": failures,
                "complete_year_requests": len(set(months)) == 12 and failures == 0,
                "manifest": str(manifest)}
@@ -140,13 +140,15 @@ def run(months, timeout=30, retries=2):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--year", type=int, choices=range(1900, 2101), default=YEAR,
+                        metavar="YEAR", help="Calendar year (default: 2024)")
     parser.add_argument("--months", nargs="+", type=int, choices=range(1, 13), default=list(range(1, 13)))
     parser.add_argument("--timeout", type=float, default=30, help="Socket timeout in seconds")
     parser.add_argument("--retries", type=int, default=2, help="Retries after the initial attempt")
     args = parser.parse_args()
     if args.timeout <= 0 or args.retries < 0:
         parser.error("timeout must be positive and retries must be nonnegative")
-    return run(args.months, args.timeout, args.retries)
+    return run(args.months, args.timeout, args.retries, year=args.year)
 
 
 if __name__ == "__main__":

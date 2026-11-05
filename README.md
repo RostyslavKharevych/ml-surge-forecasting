@@ -2,6 +2,58 @@
 
 Tabular time-series regression forecasting engine to predict granular demand surges and net deltas around key event locations.
 
+## Selecting an event year
+
+Both event scripts accept `--year` (default `2024`). The selected year controls
+calendar requests, manifest validation, showing-year checks, and all raw/interim
+paths. Existing 2024 commands continue to work. Data is isolated under
+`data/raw/events/barclays_<year>/` and `data/interim/events/barclays_<year>/`.
+Extraction defaults to that year's `discovery_all.csv`; an explicit `--manifest`
+must contain only calendar dates from the selected year. Summaries record the year.
+
+Before collecting the full 2025 year, discover January only:
+
+```bash
+python3 -m src.discover_events --year 2025 --months 1
+```
+
+Then extract only the first three URLs from that generated manifest (no guessed
+URLs). This produces `events_sample.csv`, `extraction_issues_sample.csv`, and the
+sample summary/audit in `data/interim/events/barclays_2025/`:
+
+```bash
+python3 - <<'PY'
+import csv
+import subprocess
+import sys
+
+manifest = 'data/interim/events/barclays_2025/discovery_months_01.csv'
+with open(manifest, newline='', encoding='utf-8') as stream:
+    urls = [row['event_url'] for row in csv.DictReader(stream)][:3]
+if not urls:
+    raise SystemExit('No URLs discovered; review the discovery summary first.')
+result = subprocess.run([sys.executable, '-m', 'src.ingest_events', '--year', '2025',
+                         '--manifest', manifest, '--urls', *urls])
+raise SystemExit(result.returncode)
+PY
+```
+
+Inspect those outputs and raw pages before expanding the sample to different
+event types. The built-in `--sample` remains a 2024-only validation set and is
+rejected with `--year 2025`; use `--urls` for other years. No 2025 live-page
+structure or historical completeness is established by the offline tests.
+
+After the small 2025 sample is validated, full-year commands are:
+
+```bash
+python3 -m src.discover_events --year 2025
+python3 -m src.ingest_events --year 2025
+```
+
+For offline replay, use the same `--year`, manifest, and URL selection as the saved
+run, plus `--replay PATH_TO_RAW_RUN`. Existing 2024 snapshots without an explicit
+summary year remain supported through manifest/hash validation.
+
 ## Project Structure
 
 ```text
@@ -129,7 +181,7 @@ the word "tour" alone do not establish a category.
 
 When these rules cannot determine a category, the parser consults
 `src/event_categories.json`, a manually reviewed mapping keyed by exact canonical
-event URL. It contains 44 approved entries: the original six plus 30 additional
+event URL. It contains 44 approved 2024 entries: the original six plus 30 additional
 mappings using existing labels and eight supported event types using new labels.
 The new labels are `community_event`, `music_dance_event`, `listening_party`,
 `boxing`, `sports_draft`, `bull_riding`, and `wrestling` (two WWE pages).
@@ -138,7 +190,15 @@ or event-specific metadata. Existing rule classifications always take precedence
 unmapped events remain blank. Mapped rows use `category_basis=reviewed_url_mapping`
 and record the source field and supporting text in `category_evidence`.
 
-Each entry must include `category_type`, `evidence_location`, and `evidence`.
+Each entry must include `category_type`, `evidence_location`, `evidence`, and an
+integer `reviewed_year`. The 44 original entries are reviewed for 2024 and apply
+only when `--year 2024` is selected. An additional 40 entries are reviewed for
+2025: they classify 60 performances, including four wine/sake experiences under
+`food_drink_event`. These reviews use saved official descriptions or event-specific
+metadata. Remaining 2025 categories stay blank (`unknown` in summary counts).
+A URL without a year in its name is not
+automatically safe for reuse. The general category rules still apply in 2025;
+otherwise categories remain blank until supported, year-specific review occurs.
 Review the source content before adding entries; an artist name or "tour" alone
 is insufficient. The mapping is validated before extraction, copied into each
 raw run, and hashed in the summary. Replay uses the current reviewed mapping so
@@ -150,6 +210,15 @@ Mappings are URL-specific: reviewing Aventura's December page or Usher's Decembe
 page does not classify their other pages. Descriptive evidence takes priority
 over conflicting metadata in reviewed entries: the boxing event is not a concert,
 and Billie Eilish's album listening party is distinct from a live concert.
+
+The 2025 snapshot retains 166 performances from 141 pages. Reviewed mappings
+increase category coverage from 79 to 139 performances; 27 performances across
+22 URLs remain uncertain. The R&B Forever Tour notice identifies its original
+November 9, 2024 schedule and ticket validity on the rescheduled April 26, 2025
+date. Status detection preserves both dates in `status_evidence` while retaining
+only the explicit April 26 showing. Old schedule mentions or conditional ticket
+notices alone do not establish a rescheduling. The resulting statuses are three
+cancelled, two rescheduled, and 161 unknown; these are not occurrence confirmations.
 
 No confirmed-completed status is inferred from historical listings.
 Definite cancellation/postponement/rescheduling notices are preserved, while

@@ -1,4 +1,4 @@
-"""Extract individual Barclays 2024 showings from an existing discovery manifest."""
+"""Extract Barclays Center showings for a selected year from a discovery manifest."""
 
 import argparse
 import csv
@@ -21,7 +21,8 @@ from bs4 import BeautifulSoup
 
 from src.config import INTERIM_DATA_DIR, RAW_DATA_DIR
 
-OUTPUT_DIR = INTERIM_DATA_DIR / "events" / "barclays_2024"
+DEFAULT_YEAR = 2024
+OUTPUT_DIR = INTERIM_DATA_DIR / "events" / f"barclays_{DEFAULT_YEAR}"
 CATEGORY_MAPPING_PATH = Path(__file__).with_name("event_categories.json")
 SAMPLE_SLUGS = ["brooklyn-nets-vs-new-york-knicks-20240123",
                 "new-york-liberty-vs-indiana-fever-20240518", "kehlani-2024",
@@ -35,6 +36,11 @@ FIELDS = ["performance_id", "showing_id", "venue", "event_name", "event_date", "
           "event_name_missing", "event_date_missing", "start_time_missing",
           "end_time_missing", "category_missing", "status_missing"]
 ISSUE_FIELDS = ["severity", "source_url", "showing_id", "calendar_date", "issue", "detail"]
+
+
+def output_dir_for_year(year):
+    # Retain the default path constant for compatibility with existing callers/tests.
+    return OUTPUT_DIR if year == DEFAULT_YEAR else INTERIM_DATA_DIR / "events" / f"barclays_{year}"
 
 
 def load_category_mapping(path=CATEGORY_MAPPING_PATH):
@@ -51,6 +57,8 @@ def load_category_mapping(path=CATEGORY_MAPPING_PATH):
                 not isinstance(entry.get(key), str) or not entry[key].strip()
                 for key in ("category_type", "evidence_location", "evidence")):
             raise ValueError(f"Missing category or evidence in mapping: {url}")
+        if type(entry.get("reviewed_year")) is not int or not 1900 <= entry["reviewed_year"] <= 2100:
+            raise ValueError(f"Missing or invalid reviewed_year in mapping: {url}")
     return mapping
 
 
@@ -82,7 +90,7 @@ def text(node):
     return node.get_text(" ", strip=True) if node else ""
 
 
-def parse_page(html, source_url, calendar_dates, reviewed_categories=None):
+def parse_page(html, source_url, calendar_dates, reviewed_categories=None, year=DEFAULT_YEAR):
     """Extract only explicit showing entries, preserving unknowns and discrepancies."""
     soup = BeautifulSoup(html, "html.parser")
     root = soup.select_one(".event-details")
@@ -108,11 +116,18 @@ def parse_page(html, source_url, calendar_dates, reviewed_categories=None):
             if re.search(pattern, definite_description, re.I):
                 status, status_evidence = value, definite_description
                 break
+    # Some notices identify the old schedule and confirm ticket validity on a new
+    # date without using "has been rescheduled" (e.g. the 2025 R&B Forever Tour).
+    if (status == "unknown"
+            and re.search(r"\boriginally\s+scheduled\b", definite_description, re.I)
+            and re.search(r"\btickets\b.*\bwill\s+(?:automatically\s+)?be\s+valid\s+for\s+"
+                          r"the\s+rescheduled\s+date\b", definite_description, re.I)):
+        status, status_evidence = "rescheduled", definite_description
     category, basis, category_evidence = classify_category(root, name, description)
     if not category:
         mapping = load_category_mapping() if reviewed_categories is None else reviewed_categories
         reviewed = mapping.get(source_url)
-        if reviewed:
+        if reviewed and reviewed["reviewed_year"] == year:
             category = reviewed["category_type"]
             basis = "reviewed_url_mapping"
             category_evidence = reviewed["evidence_location"] + ": " + reviewed["evidence"]
@@ -143,13 +158,13 @@ def parse_page(html, source_url, calendar_dates, reviewed_categories=None):
         seen.add(sid)
         month = text(showing.select_one(".m-date__month"))
         day = text(showing.select_one(".m-date__day"))
-        year = text(showing.select_one(".m-date__year")).strip(" ,")
-        if not year and len(years) == 1:
-            year = next(iter(years))
+        showing_year = text(showing.select_one(".m-date__year")).strip(" ,")
+        if not showing_year and len(years) == 1:
+            showing_year = next(iter(years))
         date, date_basis = "", ""
         try:
-            if year:
-                date = datetime.strptime(f"{month} {day} {year}", "%B %d %Y").date().isoformat()
+            if showing_year:
+                date = datetime.strptime(f"{month} {day} {showing_year}", "%B %d %Y").date().isoformat()
                 date_basis = "page_year_and_showing_date"
             else:
                 md = datetime.strptime(f"{month} {day} 2000", "%B %d %Y")
@@ -178,7 +193,7 @@ def parse_page(html, source_url, calendar_dates, reviewed_categories=None):
         match = bool(date and date in calendar_dates)
         if date and not match:
             issue("date_not_in_calendar", date, sid)
-        if date and not date.startswith("2024-"):
+        if date and not date.startswith(f"{year}-"):
             issue("outside_target_year", date, sid)
         row = dict(performance_id=hashlib.sha256(f"{source_url}#{sid}".encode()).hexdigest()[:20],
                    showing_id=sid,
@@ -270,7 +285,11 @@ def audit_records(rows, entries):
                                     if expected != dates.get(url, set())])
 
 
-def run(manifest, urls=None, timeout=30, retries=2, replay=None):
+def run(manifest=None, urls=None, timeout=30, retries=2, replay=None, year=DEFAULT_YEAR):
+    if year != DEFAULT_YEAR and urls and set(urls) == set(SAMPLE_URLS):
+        raise ValueError("The built-in six-page sample is reviewed for 2024 only")
+    output_dir = output_dir_for_year(year)
+    manifest = Path(manifest) if manifest is not None else output_dir / "discovery_all.csv"
     reviewed_categories = load_category_mapping()
     mapping_bytes = CATEGORY_MAPPING_PATH.read_bytes()
     entries = {}
@@ -284,7 +303,7 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
             if not isinstance(dates, list) or not dates:
                 raise ValueError(f"Missing calendar dates: {url}")
             for date in dates:
-                if datetime.strptime(date, "%Y-%m-%d").year != 2024:
+                if datetime.strptime(date, "%Y-%m-%d").year != year:
                     raise ValueError(f"Unexpected calendar date: {date}")
             entries.setdefault(url, set()).update(dates)
     if urls:
@@ -294,13 +313,15 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
     if not entries:
         raise ValueError("Empty manifest")
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    raw_dir = RAW_DATA_DIR / "events" / "barclays_2024" / "details" / run_id
+    raw_dir = RAW_DATA_DIR / "events" / f"barclays_{year}" / "details" / run_id
     raw_dir.mkdir(parents=True)
     (raw_dir / "event_categories.json").write_bytes(mapping_bytes)
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     cached = {}
     if replay:
         previous_summary = json.loads((replay / "summary.json").read_text())
+        if previous_summary.get("year", year) != year:
+            raise ValueError("Replay year differs from the selected year")
         if previous_summary["manifest_sha256"] != hashlib.sha256(manifest.read_bytes()).hexdigest():
             raise ValueError("Replay manifest differs from the saved run")
         cached = {p["source_url"]: p for p in previous_summary["pages"]}
@@ -327,7 +348,7 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
             page_record = dict(source_url=url, response=meta, attempts=attempts)
             if html is None:
                 raise ValueError(meta["error"])
-            extracted, page_issues = parse_page(html, url, dates, reviewed_categories)
+            extracted, page_issues = parse_page(html, url, dates, reviewed_categories, year=year)
             for row in extracted:
                 row.update({k: meta[k] for k in ("retrieved_at_utc", "raw_path", "raw_sha256")})
             rows.extend(extracted)
@@ -345,8 +366,8 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
         if not replay:
             time.sleep(0.1)
     scope = "sample" if urls else "all"
-    output = OUTPUT_DIR / f"events_{scope}.csv"
-    issues_path = OUTPUT_DIR / f"extraction_issues_{scope}.csv"
+    output = output_dir / f"events_{scope}.csv"
+    issues_path = output_dir / f"extraction_issues_{scope}.csv"
     rows.sort(key=lambda r: (r["event_date"], r["scheduled_start_time"], r["performance_id"]))
     audit = audit_records(rows, entries)
     if any(audit["duplicate_counts"].values()):
@@ -356,7 +377,7 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
     write_csv(issues_path, issues, ISSUE_FIELDS)
     write_csv(raw_dir / "events.csv", rows, FIELDS)
     write_csv(raw_dir / "issues.csv", issues, ISSUE_FIELDS)
-    summary = dict(run_id=run_id, manifest=str(manifest),
+    summary = dict(year=year, run_id=run_id, manifest=str(manifest),
                    python_version=platform.python_version(), beautifulsoup_version=version("beautifulsoup4"),
                    parser_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                    category_mapping_sha256=hashlib.sha256(mapping_bytes).hexdigest(),
@@ -371,7 +392,7 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
                    missing_fields={k: sum(bool(r[k]) for r in rows) for k in FIELDS if k.endswith("_missing")},
                    issues=dict(Counter(i["issue"] for i in issues)), pages=pages,
                    output=str(output), issues_output=str(issues_path))
-    if urls and set(urls) == set(SAMPLE_URLS):
+    if year == DEFAULT_YEAR and urls and set(urls) == set(SAMPLE_URLS):
         by_url = {url: [r for r in rows if r["source_url"] == url] for url in SAMPLE_URLS}
         checks = {"disney_eight_showings": len(by_url[SAMPLE_URLS[3]]) == 8,
                   "a10_seven_sessions": len(by_url[SAMPLE_URLS[4]]) == 7,
@@ -381,8 +402,8 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
                   "dates_match_manifest": all(r["calendar_date_match"] for r in rows)}
         summary["sample_validation"] = checks
     (raw_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    (OUTPUT_DIR / f"extraction_summary_{scope}.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    (OUTPUT_DIR / f"extraction_audit_{scope}.json").write_text(json.dumps(audit, indent=2), encoding="utf-8")
+    (output_dir / f"extraction_summary_{scope}.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / f"extraction_audit_{scope}.json").write_text(json.dumps(audit, indent=2), encoding="utf-8")
     print(json.dumps({k: v for k, v in summary.items() if k != "pages"}, indent=2))
     print(f"Raw run: {raw_dir}")
     # 1 = script/page failure, 2 = review warning, 0 = success (may include known unknowns).
@@ -393,7 +414,9 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", type=Path, default=OUTPUT_DIR / "discovery_all.csv")
+    parser.add_argument("--year", type=int, choices=range(1900, 2101), default=DEFAULT_YEAR,
+                        metavar="YEAR", help="Calendar year (default: 2024)")
+    parser.add_argument("--manifest", type=Path, help="Defaults to the selected year's discovery_all.csv")
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument("--urls", nargs="+", help="Sample URLs, all of which must be in the manifest")
     selection.add_argument("--sample", action="store_true", help="Validate the six representative pages")
@@ -403,8 +426,10 @@ def main():
     args = parser.parse_args()
     if args.timeout <= 0 or args.retries < 0:
         parser.error("timeout must be positive; retries must be nonnegative")
+    if args.sample and args.year != DEFAULT_YEAR:
+        parser.error("--sample is available for 2024 only; use --urls and a reviewed manifest for other years")
     return run(args.manifest, SAMPLE_URLS if args.sample else args.urls,
-               args.timeout, args.retries, args.replay)
+               args.timeout, args.retries, args.replay, year=args.year)
 
 
 if __name__ == "__main__":

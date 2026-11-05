@@ -9,7 +9,8 @@ from tests.test_ingest_events import page
 
 class ReviewedCategoryTests(unittest.TestCase):
     def test_approved_url_entries(self):
-        mapping = load_category_mapping()
+        mapping = {url: entry for url, entry in load_category_mapping().items()
+                   if entry["reviewed_year"] == 2024}
         expected = {
             "disney-on-ice-2024": "family_show",
             "ringling-bros-and-barnum-bailey-2024": "circus",

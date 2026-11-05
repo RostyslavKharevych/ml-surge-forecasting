@@ -2,221 +2,505 @@
   "https://www.barclayscenter.com/events/detail/disney-on-ice-2024": {
     "category_type": "family_show",
     "evidence_location": ".descriptionBody",
-    "evidence": "Experience world-class ice skating, iconic music, and stunning costumes that will make Disney On Ice: Find Your Hero an experience the whole family will treasure forever."
+    "evidence": "Experience world-class ice skating, iconic music, and stunning costumes that will make Disney On Ice: Find Your Hero an experience the whole family will treasure forever.",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/ringling-bros-and-barnum-bailey-2024": {
     "category_type": "circus",
     "evidence_location": ".descriptionBody",
-    "evidence": "Share the laughter and awe-inspiring spirit of the circus and ignite your family’s spark of fun at The Greatest Show On Earth."
+    "evidence": "Share the laughter and awe-inspiring spirit of the circus and ignite your family’s spark of fun at The Greatest Show On Earth.",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/harlem-globetrotters-2024": {
     "category_type": "basketball",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, Basketball, Harlem Globetrotters, 2024 World Tour"
+    "evidence": "Barclays Center, Brooklyn, Basketball, Harlem Globetrotters, 2024 World Tour",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/kehlani-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "NY Concert, BK Concert"
+    "evidence": "NY Concert, BK Concert",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/iron-maiden-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "New York Concert"
+    "evidence": "New York Concert",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/ed-sheeran-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "NY Concert, BK Concert"
+    "evidence": "NY Concert, BK Concert",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/ana-gabriel-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Ana Gabriel, Un Deseo Más Tour"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Ana Gabriel, Un Deseo Más Tour",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/aventura-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Aventura, Cerrando Ciclos"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Aventura, Cerrando Ciclos",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/barak-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Barak, TOUR X MANIFESTACIÓN"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Barak, TOUR X MANIFESTACIÓN",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/chase-atlantic": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Chase Atlantic, Concerts, Brooklyn, New York"
+    "evidence": "Barclays Center, Chase Atlantic, Concerts, Brooklyn, New York",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/chayanne": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn New York, Chayanne, Concert"
+    "evidence": "Barclays Center, Brooklyn New York, Chayanne, Concert",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/childish-gambino-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Childish Gambino, The New World Tour, WILLOW"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Childish Gambino, The New World Tour, WILLOW",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/christian-nodal-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Christian Nodal, Pa'l Cora Tour"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Christian Nodal, Pa'l Cora Tour",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/don-toliver-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Don Oliver, Hardstone Psycho Tour"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Don Oliver, Hardstone Psycho Tour",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/funk-flex-winter-fest-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Funk Flex Winter Fest"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Funk Flex Winter Fest",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/grupo-frontera-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Grupo Frontera, Jugando A Que No Pasa Nada Tour"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Grupo Frontera, Jugando A Que No Pasa Nada Tour",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/jhene-aiko-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Jhene Aiko, The Magic Hour Tour, Coi Leray, Tink, UMI"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Jhene Aiko, The Magic Hour Tour, Coi Leray, Tink, UMI",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/jonathan-lee-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Jonathan Lee, Concerts, Brooklyn, New York"
+    "evidence": "Barclays Center, Jonathan Lee, Concerts, Brooklyn, New York",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/kirk-franklin-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Kirk Franklin, Reunion Tour 2024, Yolanda Adams, Marvin Sapp, The Clark Sisters, Fred Hammond"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Kirk Franklin, Reunion Tour 2024, Yolanda Adams, Marvin Sapp, The Clark Sisters, Fred Hammond",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/kygo-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Kygo, Kygo World Tour"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Kygo, Kygo World Tour",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/latto-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Latto, Sugar Honey Iced Tea Tour, Mariah The Scientist & Kerrahboo"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Latto, Sugar Honey Iced Tea Tour, Mariah The Scientist & Kerrahboo",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/linkin-park-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Linkin Park, Zero World Tour"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Linkin Park, Zero World Tour",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/marc-anthony-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Marc Anthony, Historia Tour"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Marc Anthony, Historia Tour",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/maxwell-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Maxwell, The Serenade Tour, Jazmine Sullivan, October London"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Maxwell, The Serenade Tour, Jazmine Sullivan, October London",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/missy-elliott": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn New York, Missy Elliott, Concert"
+    "evidence": "Barclays Center, Brooklyn New York, Missy Elliott, Concert",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/nicki-minaj-pink-friday-2-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, Pink Friday 2 World Tour, concert, nyc"
+    "evidence": "Barclays Center, Brooklyn, Pink Friday 2 World Tour, concert, nyc",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/reggae-fest-massive-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Reggae Fest Massive, Mavado, Aidonja, Vanessa Bling, Elephant Man, Ding Dong, Mr. Vegas, T.O.K., Wayne Wonder & Serani"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Reggae Fest Massive, Mavado, Aidonja, Vanessa Bling, Elephant Man, Ding Dong, Mr. Vegas, T.O.K., Wayne Wonder & Serani",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/russ-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Russ, 6lack, Melii"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Russ, 6lack, Melii",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/sabrina-carpenter-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Sabrina Carpenter, Short n' Sweet Tour, Amaarae"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Sabrina Carpenter, Short n' Sweet Tour, Amaarae",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/strength-of-a-woman-festival-summit-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Strength of a Woman Festival, Mary J. Blige, 50 Cent, Jill Scott"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Strength of a Woman Festival, Mary J. Blige, 50 Cent, Jill Scott",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/thirty-seconds-to-mars-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, Concert, thirty seconds to mars, AFI"
+    "evidence": "Barclays Center, Brooklyn, Concert, thirty seconds to mars, AFI",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/twenty-one-pilots-2024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Twenty One Pilots, The Clancy World Tour"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Twenty One Pilots, The Clancy World Tour",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/usher-122024": {
     "category_type": "concert",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert,Usher, Past Present Future"
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert,Usher, Past Present Future",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/brooklyn-raga-massive-festival": {
     "category_type": "concert",
     "evidence_location": ".descriptionBody",
-    "evidence": "the festival brings together five different ensembles throughout the day"
+    "evidence": "the festival brings together five different ensembles throughout the day",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/hot-wheels-monster-trucks-2024": {
     "category_type": "family_show",
     "evidence_location": ".descriptionBody",
-    "evidence": "Special kids pricing is available for all shows providing a great value for the whole family!"
+    "evidence": "Special kids pricing is available for all shows providing a great value for the whole family!",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/nick-cannon-presents-wild-n-out-live-2024": {
     "category_type": "comedy",
     "evidence_location": ".descriptionBody",
-    "evidence": "This high-energy show features a blend of improvisational comedy, musical performances, and special guest appearances"
+    "evidence": "This high-energy show features a blend of improvisational comedy, musical performances, and special guest appearances",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/aapi-night-market-2024": {
     "category_type": "community_event",
     "evidence_location": ".descriptionBody",
-    "evidence": "Join us for the third annual AAPI Night Market at Barclays Center on Monday, May 13 at 6:00PM. Celebrate the Asian American and Pacific Islander community with complimentary food from local vendors, music by Barclays Center’s own DJay Jung , performances & more. This event is free & open to the public. Click here to RSVP ."
+    "evidence": "Join us for the third annual AAPI Night Market at Barclays Center on Monday, May 13 at 6:00PM. Celebrate the Asian American and Pacific Islander community with complimentary food from local vendors, music by Barclays Center’s own DJay Jung , performances & more. This event is free & open to the public. Click here to RSVP .",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/afrobeats-vs-amapiano-takeover-2024": {
     "category_type": "music_dance_event",
     "evidence_location": ".descriptionBody",
-    "evidence": "This year, we're shining a spotlight on the talented Afrobeats dancers who bring the music to life with their energy and passion."
+    "evidence": "This year, we're shining a spotlight on the talented Afrobeats dancers who bring the music to life with their energy and passion.",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/billie-eilish-2024": {
     "category_type": "listening_party",
     "evidence_location": ".descriptionBody",
-    "evidence": "Billie Eilish brings a special album listening party in support of her third studio album HIT ME HARD AND SOFT to Brooklyn on May 15 ."
+    "evidence": "Billie Eilish brings a special album listening party in support of her third studio album HIT ME HARD AND SOFT to Brooklyn on May 15 .",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/devin-haney-vs-ryan-garcia": {
     "category_type": "boxing",
     "evidence_location": ".descriptionBody",
-    "evidence": "is an undefeated and accomplished professional boxer with a perfect record of 31 wins and 0 losses"
+    "evidence": "is an undefeated and accomplished professional boxer with a perfect record of 31 wins and 0 losses",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/2024-nba-draft": {
     "category_type": "sports_draft",
     "evidence_location": ".descriptionBody",
-    "evidence": "NBA Draft 2024 presented by State Farm returns to Brooklyn on June 26 ."
+    "evidence": "NBA Draft 2024 presented by State Farm returns to Brooklyn on June 26 .",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/professional-bull-riders-2024": {
     "category_type": "bull_riding",
     "evidence_location": ".descriptionBody",
-    "evidence": "Professional Bull Riders will bring bull riding to Barclays Center for the first time"
+    "evidence": "Professional Bull Riders will bring bull riding to Barclays Center for the first time",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/wwe-friday-night-smackdown-2024": {
     "category_type": "wrestling",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, New York, WWE, Wrestling, Smackdown"
+    "evidence": "Barclays Center, Brooklyn, New York, WWE, Wrestling, Smackdown",
+    "reviewed_year": 2024
   },
   "https://www.barclayscenter.com/events/detail/wwe-monday-night-raw-202404": {
     "category_type": "wrestling",
     "evidence_location": "meta[name=keywords]",
-    "evidence": "Barclays Center, Brooklyn, Wrestling, WWE, Monday Night Raw"
+    "evidence": "Barclays Center, Brooklyn, Wrestling, WWE, Monday Night Raw",
+    "reviewed_year": 2024
+  },
+  "https://www.barclayscenter.com/events/detail/4-legends-one-stage-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, 4 Legends, One Stage, Chaka Khan, Patti LaBelle, Gladys Knight & Stephanie Mills",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/alejandro-fernandez-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Alejandro Fernández, De Rey A Rey",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/charli-xcx": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, Brooklyn Concert, Charli xcx, BRAT 2025 ARENA TOUR",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/davido-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays, Brooklyn, Davido, Concert",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/eladio-carrion-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays, Brooklyn, Eladio Carrión, Concert",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/eric-church-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, Eric Church, Free the Machine Tour, Elle King",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/j-balvin-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert,J Balvin , Back To The Rayo tour",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/j-hope-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, j-hope, HOPE ON THE STAGE",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/jj-lin-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn Concert,JJ20 Final Lap JJ Lin",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/keyshia-cole-the-way-it-is-20th-anniversary-tour": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays, Brooklyn, Keyshia Cole, The Way It Is 20th Anniversary Tour, Concert",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/lorde-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, Lorde, Ultrasound",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/michael-brun-presents-bayo-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, Michaël Brun,BAYO",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/nba-youngboy-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, NBA YoungBoy, DeeBaby, EBK Jaaybo, k3",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/nick-cave-the-bad-seeds": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Nick Cave & The Bad Seeds , The Wild God Tour",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/nine-inch-nails-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, Nine Inch Nails, Peel It Back World Tour 2025",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/rauw-alejandro-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, Rauw Alejandro, Cosa Nuestra World Tour",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/reggae-fest-bounty-killer-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, Reggae Fest, Bounty Killer",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/reggae-fest-massive-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn Concert, Reggae Fest Massive, Capleton, Shenseea, Alkaline, Elephant Man, Mr. Vegas, T.O.K, Tony Matterhorn, Tanto Metro & Devonte",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/sleep-token-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, Sleep Token The Even in Arcadia Tour",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/the-boy-is-mine-tour": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Brooklyn, Barclays Center, Brooklyn Concert, Brandy and Monca, The Boy is Mine Tour",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/the-millennium-tour-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, Brooklyn Concert, The Millennium Tour, Featuring Omarion, Bow Wow, Rick Ross & More",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/tyler-the-creator-2025": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert,Tyler, The Creator,CHROMAKOPIA:THE WORLD TOUR",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/2025-nba-draft": {
+    "category_type": "sports_draft",
+    "evidence_location": ".descriptionBody",
+    "evidence": "The 2025 NBA Draft returns to Brooklyn on June 25 .",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/aapi-night-market-2025": {
+    "category_type": "community_event",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Join us for the 4th annual AAPI Night Market at Barclays Center on Tuesday, May 13 at 6:00PM. Celebrate the Asian American and Pacific Islander community with complimentary food from local vendors, performances, kids activities & more. This event is free & open to the public. RSVP HERE",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/angela-yee-day": {
+    "category_type": "community_event",
+    "evidence_location": ".descriptionBody",
+    "evidence": "free outdoor block parties!",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/danny-garcia-vs-daniel-gonzalez-2025": {
+    "category_type": "boxing",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Boxing, Danny Garcia vs. Daniel Gonzalez, Barclays Center, Brooklyn Boxing",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/disney-on-ice-2025": {
+    "category_type": "family_show",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Dazzling ice skating transports you to Arendelle to be a part of Anna’s adventure to find Elsa",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/hans-zimmer": {
+    "category_type": "concert",
+    "evidence_location": ".descriptionBody",
+    "evidence": "with the support of his outstanding 18-piece live band and a full orchestra",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/harlem-globetrotters-2025": {
+    "category_type": "basketball",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, Basketball, Harlem Globetrotters, 2025 World Tour",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/john-legend-2025": {
+    "category_type": "concert",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Backed by his full band",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/martin-lawrence-2025": {
+    "category_type": "comedy",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, NY Concert, BK Concert, Comedy, Martin Lawrence, Jess Hilarious, Benji Brown & Mojo Brookzz, What It Is! Tour",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/monster-jam-2025": {
+    "category_type": "family_show",
+    "evidence_location": ".descriptionBody",
+    "evidence": "With awesome trucks, amazing stunts and action-packed excitement, it’s the definition of fun for everyone!",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/sebastian-maniscalco-2025": {
+    "category_type": "comedy",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, Comedy, Brooklyn Comedy, New York Comedy, Sebastian Maniscalco, It Ain't Right Tour",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/sprite-jam-fest-2025": {
+    "category_type": "basketball",
+    "evidence_location": ".descriptionBody",
+    "evidence": "The Sprite Jam Fest comes to Brooklyn on March 31 , showcasing the 2025 McDonald’s All Americans and featuring a variety of competitions including Knock-Out, Boy’s and Girl’s 3 Point Competitions, and everyone’s favorite: the Slam Dunk Challenge.",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/gervonta-davis-vs-lamont-roach-2025": {
+    "category_type": "boxing",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Boxing superstar Gervonta \"Tank\" Davis returns to Brooklyn to defend his WBA Lightweight World Title against WBA Super Featherweight World Champion Lamont Roach on Saturday, March 1 .",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/wwe-monday-night-raw-0802025": {
+    "category_type": "wrestling",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, New York, WWE, Wrestling, Monday Night RAW",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/brooklyn-wine-club-boards-bottles": {
+    "category_type": "food_drink_event",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Join Brooklyn Wine Club and Marissa Mullen in JetBlue at The Key at Barclays Center on June 5 for an elevated, hands-on evening of wine and board building. Marissa Mullen—author, cheese expert, and creator of That Cheese Plate— will guide you through crafting your own seasonal charcuterie board using her signature “Cheese by Numbers” method, paired with a curated wine flight of favorites personally selected by the Brooklyn Wine Club team. LEARN MORE ABOUT BROOKLYN WINE CLUB Brooklyn Wine Club is a cornerstone of Brooklyn Hospitality Group (BHG), a network that shares two passions: Brooklyn and Wine. Brooklyn Wine Club offers a fresh take on a centuries-old obsession through memberships that invite you into an exclusive community of wine lovers and provide access to events and perks designed to elevate your everyday life through experiences featuring exceptional bottles, wine discovery and education, and more. Learn more about Brooklyn Wine Club .",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/brooklyn-wine-club-lingua-franca": {
+    "category_type": "food_drink_event",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Join Brooklyn Wine Club for an extraordinary evening of wine exploration and culinary delight as Larry Stone, Master Sommelier and Founder of Lingua Franca, leads a vertical tasting through select vintages. This intimate evening offers a unique opportunity to discover the evolution of Lingua Franca wines, explore the story behind the vineyard, and enjoy a multi-course food menu curated by Executive Chef Livio Velardo designed to pair perfectly with each pour. Register For This Event Limited to 20 guests. ABOUT BROOKLYN WINE CLUB Brooklyn Wine Club is a cornerstone of Brooklyn Hospitality Group (BHG), a network that shares two passions: Brooklyn and Wine. Brooklyn Wine Club offers a fresh take on a centuries-old obsession through memberships that invite you into an exclusive community of wine lovers and provide access to events and perks designed to elevate your everyday life through experiences featuring exceptional bottles, wine discovery and education, and more. Learn more about Brooklyn Wine Club .",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/brooklyn-wine-club-poggio-di-sotto": {
+    "category_type": "food_drink_event",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Join Brooklyn Wine Club for an evening at Crown Club® , featuring an exclusive vertical tasting of Poggio di Sotto’s exceptional wines, guided by Leonardo Berti , the Winemaker behind the estate. This intimate experience will showcase the evolution of Brunello di Montalcino and Rosso di Montalcino across several distinguished vintages, revealing the depth and complexity that make these wines iconic. The evening will feature a multi-course dinner, crafted by Crown Club's Executive Chef, Livio Velardo , with each course paired to enhance the rich flavors and characteristics of the featured wines. LEARN MORE Space is limited ABOUT BROOKLYN WINE CLUB Brooklyn Wine Club is a cornerstone of Brooklyn Hospitality Group (BHG), a network that shares two passions: Brooklyn and Wine. Brooklyn Wine Club offers a fresh take on a centuries-old obsession through memberships that invite you into an exclusive community of wine lovers and provide access to events and perks designed to elevate your everyday life through experiences featuring exceptional bottles, wine discovery and education, and more. Learn more about Brooklyn Wine Club .",
+    "reviewed_year": 2025
+  },
+  "https://www.barclayscenter.com/events/detail/sip-savor-iwa-sake": {
+    "category_type": "food_drink_event",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Join Brooklyn Wine Club for an extraordinary evening of fine sake and gourmet cuisine in Crown Club ® . This exclusive event offers an intimate seated dinner featuring a curate tasting of multiple IWA Assemblages, a pioneering sake that marries tradition and innovation, guided by visionary Richard Geoffroy, former winemaker of Dom Pérignon for 28 years. Each sake will be paired with a bespoke menu crafted by our celebrated chef, designed to highlight its exceptional versatility. At the heart of IWA 5 is Assemblage—the art of blending and the signature of IWA. Each Assemblage is distinct yet unmistakably IWA, offering a dynamic and evolving experience for connoisseurs and newcomers alike. Register For This Event Seating is limited for this unique experience. ABOUT BROOKLYN WINE CLUB Brooklyn Wine Club is a cornerstone of Brooklyn Hospitality Group (BHG), a network that shares two passions: Brooklyn and Wine. Brooklyn Wine Club offers a fresh take on a centuries-old obsession through memberships that invite you into an exclusive community of wine lovers and provide access to events and perks designed to elevate your everyday life through experiences featuring exceptional bottles, wine discovery and education, and more. Learn more about Brooklyn Wine Club .",
+    "reviewed_year": 2025
   }
 }
