@@ -22,6 +22,7 @@ from bs4 import BeautifulSoup
 from src.config import INTERIM_DATA_DIR, RAW_DATA_DIR
 
 OUTPUT_DIR = INTERIM_DATA_DIR / "events" / "barclays_2024"
+CATEGORY_MAPPING_PATH = Path(__file__).with_name("event_categories.json")
 SAMPLE_SLUGS = ["brooklyn-nets-vs-new-york-knicks-20240123",
                 "new-york-liberty-vs-indiana-fever-20240518", "kehlani-2024",
                 "disney-on-ice-2024", "a10-mens-basketball-championship-2024",
@@ -34,6 +35,23 @@ FIELDS = ["performance_id", "showing_id", "venue", "event_name", "event_date", "
           "event_name_missing", "event_date_missing", "start_time_missing",
           "end_time_missing", "category_missing", "status_missing"]
 ISSUE_FIELDS = ["severity", "source_url", "showing_id", "calendar_date", "issue", "detail"]
+
+
+def load_category_mapping(path=CATEGORY_MAPPING_PATH):
+    """Load reviewed URL entries; malformed mappings must not silently affect output."""
+    mapping = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(mapping, dict):
+        raise ValueError("Category mapping must be a URL-keyed object")
+    for url, entry in mapping.items():
+        parts = urlsplit(url)
+        if (parts.scheme != "https" or parts.netloc != "www.barclayscenter.com"
+                or not parts.path.startswith("/events/detail/") or parts.query or parts.fragment):
+            raise ValueError(f"Invalid category mapping URL: {url}")
+        if not isinstance(entry, dict) or any(
+                not isinstance(entry.get(key), str) or not entry[key].strip()
+                for key in ("category_type", "evidence_location", "evidence")):
+            raise ValueError(f"Missing category or evidence in mapping: {url}")
+    return mapping
 
 
 def classify_category(root, name, description):
@@ -64,7 +82,7 @@ def text(node):
     return node.get_text(" ", strip=True) if node else ""
 
 
-def parse_page(html, source_url, calendar_dates):
+def parse_page(html, source_url, calendar_dates, reviewed_categories=None):
     """Extract only explicit showing entries, preserving unknowns and discrepancies."""
     soup = BeautifulSoup(html, "html.parser")
     root = soup.select_one(".event-details")
@@ -91,6 +109,13 @@ def parse_page(html, source_url, calendar_dates):
                 status, status_evidence = value, definite_description
                 break
     category, basis, category_evidence = classify_category(root, name, description)
+    if not category:
+        mapping = load_category_mapping() if reviewed_categories is None else reviewed_categories
+        reviewed = mapping.get(source_url)
+        if reviewed:
+            category = reviewed["category_type"]
+            basis = "reviewed_url_mapping"
+            category_evidence = reviewed["evidence_location"] + ": " + reviewed["evidence"]
 
     years = set(re.findall(r"\b(?:19|20)\d{2}\b", " ".join(
         text(n) for n in root.select(".details .m-date__year"))))
@@ -246,6 +271,8 @@ def audit_records(rows, entries):
 
 
 def run(manifest, urls=None, timeout=30, retries=2, replay=None):
+    reviewed_categories = load_category_mapping()
+    mapping_bytes = CATEGORY_MAPPING_PATH.read_bytes()
     entries = {}
     with manifest.open(newline="", encoding="utf-8") as stream:
         for entry in csv.DictReader(stream):
@@ -269,6 +296,7 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     raw_dir = RAW_DATA_DIR / "events" / "barclays_2024" / "details" / run_id
     raw_dir.mkdir(parents=True)
+    (raw_dir / "event_categories.json").write_bytes(mapping_bytes)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     cached = {}
     if replay:
@@ -299,7 +327,7 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
             page_record = dict(source_url=url, response=meta, attempts=attempts)
             if html is None:
                 raise ValueError(meta["error"])
-            extracted, page_issues = parse_page(html, url, dates)
+            extracted, page_issues = parse_page(html, url, dates, reviewed_categories)
             for row in extracted:
                 row.update({k: meta[k] for k in ("retrieved_at_utc", "raw_path", "raw_sha256")})
             rows.extend(extracted)
@@ -331,6 +359,7 @@ def run(manifest, urls=None, timeout=30, retries=2, replay=None):
     summary = dict(run_id=run_id, manifest=str(manifest),
                    python_version=platform.python_version(), beautifulsoup_version=version("beautifulsoup4"),
                    parser_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                   category_mapping_sha256=hashlib.sha256(mapping_bytes).hexdigest(),
                    manifest_sha256=hashlib.sha256(manifest.read_bytes()).hexdigest(),
                    replay_from=str(replay) if replay else None, pages_requested=len(entries),
                    failed_pages=failed, performances=len(rows),

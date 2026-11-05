@@ -1,0 +1,32 @@
+{
+  "https://www.barclayscenter.com/events/detail/disney-on-ice-2024": {
+    "category_type": "family_show",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Experience world-class ice skating, iconic music, and stunning costumes that will make Disney On Ice: Find Your Hero an experience the whole family will treasure forever."
+  },
+  "https://www.barclayscenter.com/events/detail/ringling-bros-and-barnum-bailey-2024": {
+    "category_type": "circus",
+    "evidence_location": ".descriptionBody",
+    "evidence": "Share the laughter and awe-inspiring spirit of the circus and ignite your family’s spark of fun at The Greatest Show On Earth."
+  },
+  "https://www.barclayscenter.com/events/detail/harlem-globetrotters-2024": {
+    "category_type": "basketball",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "Barclays Center, Brooklyn, Basketball, Harlem Globetrotters, 2024 World Tour"
+  },
+  "https://www.barclayscenter.com/events/detail/kehlani-2024": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "NY Concert, BK Concert"
+  },
+  "https://www.barclayscenter.com/events/detail/iron-maiden-2024": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "New York Concert"
+  },
+  "https://www.barclayscenter.com/events/detail/ed-sheeran-2024": {
+    "category_type": "concert",
+    "evidence_location": "meta[name=keywords]",
+    "evidence": "NY Concert, BK Concert"
+  }
+}

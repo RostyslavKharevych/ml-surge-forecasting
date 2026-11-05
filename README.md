@@ -67,7 +67,7 @@ representative pages (Nets, Liberty, Kehlani, Disney, A-10, Masters of Ceremony)
 ```bash
 python3 -m pip install -r requirements-events.txt
 python3 -m src.ingest_events --sample
-python3 -m unittest tests.test_ingest_events tests.test_discover_events -v
+python3 -m unittest discover -v
 ```
 
 The sample summary checks eight Disney showings, seven A-10 sessions, cancellation
@@ -125,7 +125,25 @@ failures. Categories come from explicit fields, the Nets/Liberty game-title rule
 or literal event-specific terms (`basketball`, `comedy`, `concert`, `art exhibit`,
 `gymnastics`) in the main title or opening description paragraph. Each derived
 category records its rule and evidence. Artist names, decorative icons, and
-the word "tour" alone do not establish a category; remaining values stay blank.
+the word "tour" alone do not establish a category.
+
+When these rules cannot determine a category, the parser consults
+`src/event_categories.json`, a manually reviewed mapping keyed by exact canonical
+event URL. It contains six approved entries: Disney On Ice (`family_show`),
+Ringling (`circus`), Harlem Globetrotters (`basketball`), and Kehlani, Iron Maiden,
+and Ed Sheeran (`concert`). Evidence comes from saved official event descriptions
+or event-specific metadata. Existing rule classifications always take precedence;
+unmapped events remain blank. Mapped rows use `category_basis=reviewed_url_mapping`
+and record the source field and supporting text in `category_evidence`.
+
+Each entry must include `category_type`, `evidence_location`, and `evidence`.
+Review the source content before adding entries; an artist name or "tour" alone
+is insufficient. The mapping is validated before extraction, copied into each
+raw run, and hashed in the summary. Replay uses the current reviewed mapping so
+saved responses can be reclassified; the mapping hash identifies the version.
+The approved mapping classifies 20 additional performances, reducing unknown
+categories from 96 to 76 without changing the 186 extracted showings.
+
 No confirmed-completed status is inferred from historical listings.
 Definite cancellation/postponement/rescheduling notices are preserved, while
 conditional notices and ambiguous multi-show prose do not become definite
