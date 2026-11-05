@@ -18,7 +18,7 @@ VENUE_CONFIG = {
         "spillover_zones": {
             49: 0.25,
             62: 0.25,
-            69: 0.25,
+            61: 0.25,
             97: 0.25,
             181: 0.25,
             190: 0.25
@@ -27,6 +27,7 @@ VENUE_CONFIG = {
     "citi_field": {
         "core_zone": 253,
         "spillover_zones": {
+            92: 0.75,
             93: 0.75
         }
     }
@@ -34,7 +35,7 @@ VENUE_CONFIG = {
 
 # Master list of all unique zones to ingest
 ALL_INGESTION_ZONES = sorted(list({
-    189, 49, 62, 69, 97, 181, 190, 253, 93
+    189, 49, 61, 62, 97, 181, 190, 253, 92, 93
 }))
 
 ANALYSIS_YEARS = [2024, 2025]

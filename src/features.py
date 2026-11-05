@@ -10,8 +10,8 @@ Architecture & Modeling Design:
    Trips are binned based on when the customer requested the ride. Algorithmic surge 
    pricing is evaluated at request time, not when the driver arrives.
 2. Spatial Topologies & Weights:
-   - Barclays Center (Dense transit hub): 1.0 * Zone 189 + 0.25 * (Zones 49, 62, 69, 97, 181, 190).
-   - Citi Field (Isolated park/stadium): 1.0 * Zone 253 + 0.75 * Zone 93 (Flushing Meadows).
+   - Barclays Center (Dense transit hub): 1.0 * Zone 189 + 0.25 * (Zones 49, 61, 62, 97, 181, 190).
+   - Citi Field (Isolated park/stadium): 1.0 * Zone 253 + 0.75 * (Zones 92, 93) (Flushing, Flushing Meadows).
 3. Zero-Gap Continuous Time Grid:
    Late-night stadium hours often have zero ride requests. Reindexing against a global 
    master DatetimeIndex guarantees zero-filled rows rather than missing timestamps.
