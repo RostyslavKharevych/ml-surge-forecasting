@@ -210,7 +210,7 @@ def main():
     parser.add_argument("--years", type=int, nargs="+", default=ANALYSIS_YEARS)
     years = parser.parse_args().years
     logging.basicConfig(format="%(message)s")
-    concerts = held_concerts(load_events(tour_attendance_path=None))
+    concerts = held_concerts(load_events(tour_attendance_path=None, calibrate=False))
     concerts = concerts[concerts.event_start.dt.year.isin(years)]
     found = match_concerts(concerts)
     found.to_csv(ATTENDANCE_PATH, index=False)

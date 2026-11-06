@@ -124,7 +124,7 @@ def main():
 
     argparse.ArgumentParser(description=f"Fetch basketball box scores into {GAMES_PATH}").parse_args()
     logging.basicConfig(format="%(message)s")
-    events = load_events(box_scores_path=None, tour_attendance_path=None)
+    events = load_events(box_scores_path=None, tour_attendance_path=None, calibrate=False)
     games = fetch_games(events[held_basketball(events)].event_start.dropna().dt.date)
     games.to_csv(GAMES_PATH, index=False)
     print(f"{len(games)} games -> {GAMES_PATH}")

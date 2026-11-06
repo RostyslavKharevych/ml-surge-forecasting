@@ -41,3 +41,4 @@ ALL_INGESTION_ZONES = sorted(list({
 }))
 
 ANALYSIS_YEARS = [2024, 2025]
+TRAINING_PERIOD = ("2024-03-01", "2024-09-30 23:59")  # inclusive; later events are validation/test
