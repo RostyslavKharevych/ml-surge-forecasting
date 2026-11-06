@@ -38,8 +38,16 @@ class ReviewedCategoryTests(unittest.TestCase):
             nicki-minaj-pink-friday-2-2024 reggae-fest-massive-2024 russ-2024
             sabrina-carpenter-2024 strength-of-a-woman-festival-summit-2024
             thirty-seconds-to-mars-2024 twenty-one-pilots-2024 usher-122024""".split()
+        # Drafted from page evidence in #3 and human-reviewed; Zach Bryan has two pages.
+        concert_slugs += """aventura bad-bunny-2024 buju-banton-2024 chris-brown-2024
+            don-omar-2024 future-metro-boomin-2024 janet-jackson-2024 joker-xue-2024
+            justin-timberlake-2024 kacey-musgraves-2024 ladies-night-rb-super-jam-2024
+            luis-miguel-2024 mariah-carey maverick-city-music-2024 peso-pluma
+            rb-music-experience-2024 sexyy-red-2024 subtronics-2024
+            the-love-hard-tour-2024 the-new-york-salsa-festival-2024 usher
+            zach-bryan-2024 zach-bryan-12-2024""".split()
         expected.update({slug: "concert" for slug in concert_slugs})
-        self.assertEqual(len(expected), 44)
+        self.assertEqual(len(expected), 67)
         self.assertEqual({url.rsplit("/", 1)[-1]: entry["category_type"]
                           for url, entry in mapping.items()}, expected)
         for url, entry in mapping.items():
@@ -77,24 +85,6 @@ class ReviewedCategoryTests(unittest.TestCase):
                              "https://www.barclayscenter.com/events/detail/unreviewed", ["2024-01-18"])
         self.assertEqual(rows[0]["category_type"], "")
         self.assertTrue(rows[0]["category_missing"])
-
-    def test_23_uncertain_urls_across_22_names_remain_unmapped(self):
-        slugs = """aventura bad-bunny-2024 buju-banton-2024 chris-brown-2024
-            don-omar-2024 future-metro-boomin-2024 janet-jackson-2024 joker-xue-2024
-            justin-timberlake-2024 kacey-musgraves-2024 ladies-night-rb-super-jam-2024
-            luis-miguel-2024 mariah-carey maverick-city-music-2024 peso-pluma
-            rb-music-experience-2024 sexyy-red-2024 subtronics-2024
-            the-love-hard-tour-2024 the-new-york-salsa-festival-2024 usher
-            zach-bryan-2024 zach-bryan-12-2024""".split()
-        # The review listed 22 names; Zach Bryan has two distinct source pages.
-        self.assertEqual(len(slugs), 23)
-        mapping = load_category_mapping()
-        for slug in slugs:
-            with self.subTest(slug=slug):
-                url = "https://www.barclayscenter.com/events/detail/" + slug
-                self.assertNotIn(url, mapping)
-                rows, _ = parse_page(page(), url, ["2024-01-18"])
-                self.assertEqual(rows[0]["category_type"], "")
 
     def test_description_evidence_beats_misleading_concert_metadata(self):
         for slug, category in [("devin-haney-vs-ryan-garcia", "boxing"),
