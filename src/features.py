@@ -300,5 +300,13 @@ def run_feature_pipeline(save_master: bool = True) -> Path:
     return master_file
 
 
+def run_batch_features(years: List[int] = ANALYSIS_YEARS, overwrite: bool = False):
+    """Builds the monthly 15-minute venue demand tables for every cleaned month present."""
+    for year in years:
+        for month in range(1, 13):
+            process_month_features(year, month, overwrite=overwrite)
+
+
 if __name__ == "__main__":
+    run_batch_features()
     run_feature_pipeline()
