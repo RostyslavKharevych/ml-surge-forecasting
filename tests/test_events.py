@@ -4,7 +4,8 @@ import pandas as pd
 
 from src.box_scores import GAMES_PATH
 from src.config import INTERIM_DATA_DIR
-from src.events import EVENT_COLUMNS, apply_overrides, from_barclays_scrape, load_events
+from src.events import (EVENT_COLUMNS, apply_overrides, apply_runtimes, from_barclays_scrape,
+                        load_events)
 
 
 def scraped(**overrides):
@@ -70,6 +71,34 @@ class OverrideTests(unittest.TestCase):
                             pd.DataFrame([override(event_end="2024-03-22 22:05")]))
 
 
+def runtime(**fields):
+    row = dict(venue="barclays", event_name="Disney On Ice", year="2024", runtime_minutes="105",
+               source="test")
+    return pd.DataFrame([{**row, **fields}])
+
+
+class RuntimeTests(unittest.TestCase):
+    def test_fills_end_from_start_plus_runtime(self):
+        events = apply_runtimes(from_barclays_scrape(scraped(
+            event_name="Disney On Ice", event_date="2024-01-18", scheduled_start_time="19:00:00",
+            category_type="family_show")), runtime())
+        self.assertEqual(events.iloc[0].event_end, pd.Timestamp("2024-01-18 20:45"))
+        self.assertEqual(events.iloc[0].end_time_basis, "published_runtime")
+
+    def test_existing_end_and_other_years_untouched(self):
+        events = apply_overrides(from_barclays_scrape(pd.concat([
+            scraped(event_name="Disney On Ice", event_date="2024-01-18", scheduled_start_time="19:00:00"),
+            scraped(event_name="Disney On Ice", event_date="2025-01-16", scheduled_start_time="19:00:00")])),
+            pd.DataFrame([override(event_name="Disney On Ice", event_date="2024-01-18",
+                                   event_end="2024-01-18 21:00", end_time_basis="broadcast_window")]))
+        events = apply_runtimes(events, runtime())
+        self.assertEqual(list(events.end_time_basis), ["broadcast_window", ""])
+
+    def test_unmatched_runtime_fails(self):
+        with self.assertRaisesRegex(ValueError, "matches no"):
+            apply_runtimes(from_barclays_scrape(scraped()), runtime())
+
+
 @unittest.skipUnless((INTERIM_DATA_DIR / "events/barclays_2025/events_all.csv").exists()
                      and GAMES_PATH.exists(), "scraped events or box scores not present")
 class RealEventTableTests(unittest.TestCase):
@@ -81,3 +110,12 @@ class RealEventTableTests(unittest.TestCase):
         self.assertEqual(set(ncaa.end_time_basis), {"box_score"})
         self.assertFalse((events.event_type == "").any())
         self.assertEqual(set(events.event_start.dt.year.dropna()), {2024, 2025})
+
+    def test_non_basketball_ends_from_specific_sources(self):
+        events = load_events()
+        held = events[events.event_status == "held"]
+        for types, basis in [({"wrestling", "boxing"}, "broadcast_window"),
+                             ({"family_show", "circus"}, "published_runtime")]:
+            with self.subTest(basis=basis):
+                self.assertEqual(set(held[held.event_type.isin(types)].end_time_basis), {basis})
+        self.assertTrue(set(events.attendance_basis) <= {"", "box_score", "reported"})

@@ -49,11 +49,11 @@ def held_basketball(events):
     return (events.event_type == "basketball") & (events.event_status == "held")
 
 
-def _fill(events, column, basis_column, values):
-    """Box-score values go only into blank cells, so reviewed overrides win."""
+def fill_blanks(events, column, basis_column, values, basis):
+    """Enrichment values go only into blank cells, so reviewed overrides win."""
     fill = events[column].isna() & values.notna()
     events.loc[fill, column] = values[fill]
-    events.loc[fill, basis_column] = "box_score"
+    events.loc[fill, basis_column] = basis
 
 
 def apply_box_scores(events, games):
@@ -74,8 +74,8 @@ def apply_box_scores(events, games):
 
     events = events.copy()
     per_event = per_event.reindex(events.event_id).set_axis(events.index)
-    _fill(events, "event_end", "end_time_basis", per_event.end)
-    _fill(events, "attendance", "attendance_basis", per_event.attendance)
+    fill_blanks(events, "event_end", "end_time_basis", per_event.end, "box_score")
+    fill_blanks(events, "attendance", "attendance_basis", per_event.attendance, "box_score")
 
     unmatched = events[basketball & (events.event_end.isna() | events.attendance.isna())]
     if len(unmatched):

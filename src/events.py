@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.box_scores import GAMES_PATH, apply_box_scores, read_games
+from src.box_scores import GAMES_PATH, apply_box_scores, fill_blanks, read_games
 from src.config import ANALYSIS_YEARS
 from src.ingest_events import output_dir_for_year
 
@@ -12,6 +12,8 @@ EVENT_COLUMNS = ["event_id", "venue", "event_name", "event_type", "event_start",
                  "end_time_basis", "attendance", "attendance_basis", "event_status"]
 OVERRIDES_PATH = Path(__file__).with_name("event_overrides.csv")
 OVERRIDE_KEY = ["venue", "event_date", "event_name"]
+RUNTIMES_PATH = Path(__file__).with_name("event_runtimes.csv")
+RUNTIME_KEY = ["venue", "event_name", "year"]
 EVENT_STATUSES = {"held", "cancelled", "postponed"}
 # A scraper "unknown" means the page carried no cancel/postpone notice; a rescheduled
 # showing is listed on the date it was actually held.
@@ -67,12 +69,31 @@ def apply_overrides(events, overrides):
         "event_start", kind="stable").reset_index(drop=True))
 
 
-def load_events(years=ANALYSIS_YEARS, overrides_path=OVERRIDES_PATH, box_scores_path=GAMES_PATH):
-    """The Event table the merge reads. Reviewed overrides win over box scores;
-    box_scores_path=None skips the enrichment."""
+def apply_runtimes(events, runtimes):
+    """Event End = Event Start + a production's published runtime, for held showings whose
+    end is still blank. A production is keyed by (venue, event_name, year); each runtime row
+    must match at least one showing."""
+    events = events.copy()
+    key = events[["venue", "event_name"]].assign(year=events.event_start.dt.year.astype("Int64").astype(str))
+    for _, row in runtimes.iterrows():
+        match = (key[RUNTIME_KEY] == row[RUNTIME_KEY]).all(axis=1)
+        if not match.any():
+            raise ValueError(f"Runtime {list(row[RUNTIME_KEY])} matches no events")
+        ends = events.event_start + pd.Timedelta(minutes=int(row.runtime_minutes))
+        fill_blanks(events, "event_end", "end_time_basis",
+                    ends.where(match & (events.event_status == "held")), "published_runtime")
+    return events
+
+
+def load_events(years=ANALYSIS_YEARS, overrides_path=OVERRIDES_PATH, box_scores_path=GAMES_PATH,
+                runtimes_path=RUNTIMES_PATH):
+    """The Event table the merge reads. Reviewed overrides win over box scores and runtimes;
+    box_scores_path=None skips the box-score enrichment."""
     overrides = pd.read_csv(overrides_path, dtype=str, keep_default_na=False)
     events = apply_overrides(barclays_events(years), overrides)
-    return events if box_scores_path is None else apply_box_scores(events, read_games(box_scores_path))
+    if box_scores_path is not None:
+        events = apply_box_scores(events, read_games(box_scores_path))
+    return apply_runtimes(events, pd.read_csv(runtimes_path, dtype=str, keep_default_na=False))
 
 
 def _finalise(events):
