@@ -17,7 +17,9 @@ OVERRIDES_PATH = Path(__file__).with_name("event_overrides.csv")
 OVERRIDE_KEY = ["venue", "event_date", "event_name"]
 RUNTIMES_PATH = Path(__file__).with_name("event_runtimes.csv")
 RUNTIME_KEY = ["venue", "event_name", "year"]
-EVENT_STATUSES = {"held", "cancelled", "postponed"}
+# `duplicate`: a listing for an Event already in the table (e.g. a suite package for a game);
+# set only by override, and like cancelled it affects nothing.
+EVENT_STATUSES = {"held", "cancelled", "postponed", "duplicate"}
 # A scraper "unknown" means the page carried no cancel/postpone notice; a rescheduled
 # showing is listed on the date it was actually held.
 OVERRIDE_FIELDS = {"event_start": pd.Timestamp, "event_end": pd.Timestamp, "end_time_basis": str,
