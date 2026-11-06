@@ -7,6 +7,7 @@ import pandas as pd
 from src.box_scores import GAMES_PATH, apply_box_scores, fill_blanks, read_games
 from src.config import ANALYSIS_YEARS
 from src.ingest_events import output_dir_for_year
+from src.tour_boxscores import ATTENDANCE_PATH, apply_tour_attendance, read_tour_attendance
 
 EVENT_COLUMNS = ["event_id", "venue", "event_name", "event_type", "event_start", "event_end",
                  "end_time_basis", "attendance", "attendance_basis", "event_status"]
@@ -86,13 +87,15 @@ def apply_runtimes(events, runtimes):
 
 
 def load_events(years=ANALYSIS_YEARS, overrides_path=OVERRIDES_PATH, box_scores_path=GAMES_PATH,
-                runtimes_path=RUNTIMES_PATH):
-    """The Event table the merge reads. Reviewed overrides win over box scores and runtimes;
-    box_scores_path=None skips the box-score enrichment."""
+                runtimes_path=RUNTIMES_PATH, tour_attendance_path=ATTENDANCE_PATH):
+    """The Event table the merge reads. Reviewed overrides win over box scores, tour box scores
+    and runtimes; a None enrichment path skips that enrichment."""
     overrides = pd.read_csv(overrides_path, dtype=str, keep_default_na=False)
     events = apply_overrides(barclays_events(years), overrides)
     if box_scores_path is not None:
         events = apply_box_scores(events, read_games(box_scores_path))
+    if tour_attendance_path is not None:
+        events = apply_tour_attendance(events, read_tour_attendance(tour_attendance_path))
     return apply_runtimes(events, pd.read_csv(runtimes_path, dtype=str, keep_default_na=False))
 
 

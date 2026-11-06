@@ -6,6 +6,7 @@ from src.box_scores import GAMES_PATH
 from src.config import INTERIM_DATA_DIR
 from src.events import (EVENT_COLUMNS, apply_overrides, apply_runtimes, from_barclays_scrape,
                         load_events)
+from src.tour_boxscores import ATTENDANCE_PATH
 
 
 def scraped(**overrides):
@@ -100,7 +101,8 @@ class RuntimeTests(unittest.TestCase):
 
 
 @unittest.skipUnless((INTERIM_DATA_DIR / "events/barclays_2025/events_all.csv").exists()
-                     and GAMES_PATH.exists(), "scraped events or box scores not present")
+                     and GAMES_PATH.exists() and ATTENDANCE_PATH.exists(),
+                     "scraped events, box scores or tour attendance not present")
 class RealEventTableTests(unittest.TestCase):
     def test_reviewed_ncaa_sessions_and_full_categories(self):
         events = load_events()
@@ -118,4 +120,4 @@ class RealEventTableTests(unittest.TestCase):
                              ({"family_show", "circus"}, "published_runtime")]:
             with self.subTest(basis=basis):
                 self.assertEqual(set(held[held.event_type.isin(types)].end_time_basis), {basis})
-        self.assertTrue(set(events.attendance_basis) <= {"", "box_score", "reported"})
+        self.assertTrue(set(events.attendance_basis) <= {"", "box_score", "reported", "tour_boxscore"})
