@@ -14,6 +14,7 @@ TLC_BASE_URL = "https://d37ci6vzurychx.cloudfront.net/trip-data"
 # Venue zone configurations
 VENUE_CONFIG = {
     "barclays": {
+        "coordinates": (40.6826, -73.9754),  # arena (lat, lon), for Venue Weather
         "core_zone": 189,
         "spillover_zones": {
             49: 0.25,
@@ -25,6 +26,7 @@ VENUE_CONFIG = {
         }
     },
     "citi_field": {
+        "coordinates": (40.7571, -73.8458),
         "core_zone": 253,
         "spillover_zones": {
             92: 0.75,
