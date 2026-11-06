@@ -18,8 +18,8 @@ Architecture & Modeling Design:
 4. Lag Architecture:
    - Short-term momentum: t-1 (15m), t-2 (30m), t-4 (1h).
    - Diurnal cyclicality: t-96 (24 hours ago).
-   - Weekly seasonal baseline: t-672 (7 days ago).
-   - Surge delta target: Δy_t = y_t - y_{t-672}.
+   - Week-Ago Demand: t-672 (7 days ago), an input only. The target (Surge Delta) is
+     built against the Clean-Week Baseline in src/baseline.py (ADR 0001).
 5. Leakage Prevention:
    All rolling features use .shift(1) so the current interval is excluded from past statistics.
 """
@@ -217,8 +217,7 @@ def consolidate_demand_matrices(start_date: str = "2024-01-01 00:00:00", end_dat
 
 def engineer_feature_lags(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Constructs cyclical calendar encodings, momentum lags, rolling statistical windows, 
-    and the T-7 weekly baseline delta target (target_delta_y).
+    Constructs cyclical calendar encodings, momentum lags and rolling statistical windows.
 
     Lag Specifications (15m step):
     -----------------------------
@@ -226,12 +225,7 @@ def engineer_feature_lags(df: pd.DataFrame) -> pd.DataFrame:
     - demand_lag_2:   t - 2   (30 min ago - surge velocity/slope)
     - demand_lag_4:   t - 4   (1 hour ago - immediate pre-event background)
     - demand_lag_96:  t - 96  (24 hours ago - daily diurnal cycle)
-    - demand_lag_672: t - 672 (7 days ago - weekly seasonal baseline)
-
-    Target Variable:
-    ----------------
-    target_delta_y = weighted_demand_t - weighted_demand_{t-672}
-    Represents net demand elevation above the same 15-minute window last week.
+    - demand_lag_672: t - 672 (7 days ago - Week-Ago Demand, an input, not the target)
 
     Parameters:
     -----------
@@ -269,9 +263,6 @@ def engineer_feature_lags(df: pd.DataFrame) -> pd.DataFrame:
         group["rolling_mean_1h"] = group["weighted_demand"].shift(1).rolling(window=4, min_periods=1).mean()
         group["rolling_std_1h"] = group["weighted_demand"].shift(1).rolling(window=4, min_periods=1).std().fillna(0)
         group["rolling_mean_4h"] = group["weighted_demand"].shift(1).rolling(window=16, min_periods=1).mean()
-
-        # Primary Modeling Target: Surge Elevation above Weekly Baseline
-        group["target_delta_y"] = group["weighted_demand"] - group["demand_lag_672"]
 
         venue_groups.append(group)
 
