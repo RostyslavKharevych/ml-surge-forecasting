@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.box_scores import GAMES_PATH, apply_box_scores, read_games
 from src.config import ANALYSIS_YEARS
 from src.ingest_events import output_dir_for_year
 
@@ -66,10 +67,12 @@ def apply_overrides(events, overrides):
         "event_start", kind="stable").reset_index(drop=True))
 
 
-def load_events(years=ANALYSIS_YEARS, overrides_path=OVERRIDES_PATH):
-    """The Event table the merge reads."""
+def load_events(years=ANALYSIS_YEARS, overrides_path=OVERRIDES_PATH, box_scores_path=GAMES_PATH):
+    """The Event table the merge reads. Reviewed overrides win over box scores;
+    box_scores_path=None skips the enrichment."""
     overrides = pd.read_csv(overrides_path, dtype=str, keep_default_na=False)
-    return apply_overrides(barclays_events(years), overrides)
+    events = apply_overrides(barclays_events(years), overrides)
+    return events if box_scores_path is None else apply_box_scores(events, read_games(box_scores_path))
 
 
 def _finalise(events):

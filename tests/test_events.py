@@ -2,6 +2,7 @@ import unittest
 
 import pandas as pd
 
+from src.box_scores import GAMES_PATH
 from src.config import INTERIM_DATA_DIR
 from src.events import EVENT_COLUMNS, apply_overrides, from_barclays_scrape, load_events
 
@@ -69,13 +70,14 @@ class OverrideTests(unittest.TestCase):
                             pd.DataFrame([override(event_end="2024-03-22 22:05")]))
 
 
-@unittest.skipUnless((INTERIM_DATA_DIR / "events/barclays_2025/events_all.csv").exists(),
-                     "scraped events not present")
+@unittest.skipUnless((INTERIM_DATA_DIR / "events/barclays_2025/events_all.csv").exists()
+                     and GAMES_PATH.exists(), "scraped events or box scores not present")
 class RealEventTableTests(unittest.TestCase):
     def test_reviewed_ncaa_sessions_and_full_categories(self):
         events = load_events()
         ncaa = events[events.event_name == "NCAA March Madness"]
         self.assertEqual(list(ncaa.event_start.dt.strftime("%Y-%m-%d %H:%M")),
                          ["2024-03-22 12:15", "2024-03-22 19:10", "2024-03-24 17:15"])
+        self.assertEqual(set(ncaa.end_time_basis), {"box_score"})
         self.assertFalse((events.event_type == "").any())
         self.assertEqual(set(events.event_start.dt.year.dropna()), {2024, 2025})
