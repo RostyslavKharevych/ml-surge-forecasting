@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from src.ingest_events import load_category_mapping, parse_page
+from src.ingestion.barclays_ingest import load_category_mapping, parse_page
 from tests.test_ingest_events import page
 
 

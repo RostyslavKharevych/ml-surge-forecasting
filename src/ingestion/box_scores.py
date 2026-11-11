@@ -120,7 +120,7 @@ def fetch_games(dates):
 
 
 def main():
-    from src.events import load_events  # events reads this module's output
+    from src.processing.events import load_events  # events reads this module's output
 
     argparse.ArgumentParser(description=f"Fetch basketball box scores into {GAMES_PATH}").parse_args()
     logging.basicConfig(format="%(message)s")

@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from src.baseline import add_baseline, affected_slots, drop_events_without_baseline
+from src.features.baseline import add_baseline, affected_slots, drop_events_without_baseline
 
 
 def event(start, end, status="held", venue="barclays"):
@@ -91,7 +91,7 @@ class DropEventsTests(unittest.TestCase):
                                event("2024-03-26 19:00", "2024-03-26 21:10"),
                                event("2024-03-27 19:00", "2024-03-27 21:10", status="cancelled")])
         out = add_baseline(demand(), events)
-        with self.assertLogs("src.baseline", "WARNING") as logs:
+        with self.assertLogs("src.features.baseline", "WARNING") as logs:
             kept = drop_events_without_baseline(events, out)
         self.assertEqual(list(kept.event_start.dt.strftime("%m-%d")), ["03-26", "03-27"])
         self.assertIn("barclays_2024-01-17 19:00", logs.output[0])
@@ -100,7 +100,7 @@ class DropEventsTests(unittest.TestCase):
         # End 23:50 → window runs to 01:05 next day, beyond the demand grid.
         events = pd.DataFrame([event("2024-03-31 21:00", "2024-03-31 23:50"),
                                event("2024-03-26 19:00", None)])  # held, no Event End
-        with self.assertLogs("src.baseline", "WARNING"):
+        with self.assertLogs("src.features.baseline", "WARNING"):
             kept = drop_events_without_baseline(events, add_baseline(demand(), events))
         self.assertTrue(kept.empty)
 

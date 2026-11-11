@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from src.dataset import build_dataset
+from src.features.dataset import build_dataset
 
 
 def event(start, end, status="held", event_type="concert"):

@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from src.calibration import apply_calibrated_ends, category_durations
+from src.processing.calibration import apply_calibrated_ends, category_durations
 
 
 def event(start, event_type="concert", end=None, basis="", status="held"):

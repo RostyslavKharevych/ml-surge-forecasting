@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.events import from_barclays_scrape
-from src.tour_boxscores import apply_tour_attendance, parse_touring_data, parse_wikipedia
+from src.processing.events import from_barclays_scrape
+from src.ingestion.tour_boxscores import apply_tour_attendance, parse_touring_data, parse_wikipedia
 
 FIXTURES = Path(__file__).parent / "fixtures" / "tour_boxscores"
 # A Touring Data row, as in https://touringdata.org/2024/07/10/chris-brown-1111-tour/

@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from src.weather import to_buckets
+from src.ingestion.weather import to_buckets
 
 
 class ToBucketsTests(unittest.TestCase):

@@ -9,11 +9,11 @@ import logging
 
 import pandas as pd
 
-from src.baseline import add_baseline, drop_events_without_baseline, is_holiday, prediction_buckets
+from src.features.baseline import add_baseline, drop_events_without_baseline, is_holiday, prediction_buckets
 from src.config import PROCESSED_DATA_DIR, TRAINING_PERIOD
-from src.events import load_events
-from src.features import consolidate_demand_matrices, engineer_feature_lags
-from src.weather import load_weather
+from src.processing.events import load_events
+from src.features.features import consolidate_demand_matrices, engineer_feature_lags
+from src.ingestion.weather import load_weather
 
 log = logging.getLogger(__name__)
 

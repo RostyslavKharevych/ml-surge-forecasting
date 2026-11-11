@@ -18,7 +18,7 @@ from urllib.request import Request, urlopen
 import pandas as pd
 from bs4 import BeautifulSoup
 
-from src.box_scores import fill_blanks
+from src.ingestion.box_scores import fill_blanks
 from src.config import ANALYSIS_YEARS, INTERIM_DATA_DIR, RAW_DATA_DIR
 
 log = logging.getLogger(__name__)
@@ -204,7 +204,7 @@ def read_tour_attendance(path=ATTENDANCE_PATH):
 
 
 def main():
-    from src.events import load_events  # events reads this module's output
+    from src.processing.events import load_events  # events reads this module's output
 
     parser = argparse.ArgumentParser(description=f"Match concerts to tour box scores into {ATTENDANCE_PATH}")
     parser.add_argument("--years", type=int, nargs="+", default=ANALYSIS_YEARS)

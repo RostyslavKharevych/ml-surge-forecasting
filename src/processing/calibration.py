@@ -9,9 +9,9 @@ import argparse
 
 import pandas as pd
 
-from src.box_scores import fill_blanks
+from src.ingestion.box_scores import fill_blanks
 from src.config import TRAINING_PERIOD
-from src.features import consolidate_demand_matrices
+from src.features.features import consolidate_demand_matrices
 
 PEAK_SEARCH = pd.Timedelta(hours=5)
 POOLED = "all"  # duration for categories with no training-period Events
@@ -48,7 +48,7 @@ def apply_calibrated_ends(events, durations):
 
 
 def main():
-    from src.events import load_events  # events reads this module
+    from src.processing.events import load_events  # events reads this module
     argparse.ArgumentParser(description="Report calibrated category durations and validate "
                                         "them on basketball box-score ends").parse_args()
     demand = consolidate_demand_matrices()

@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.box_scores import GAMES_PATH, apply_box_scores, fill_blanks, read_games
-from src.calibration import apply_calibrated_ends, category_durations
+from src.ingestion.box_scores import GAMES_PATH, apply_box_scores, fill_blanks, read_games
+from src.processing.calibration import apply_calibrated_ends, category_durations
 from src.config import ANALYSIS_YEARS
-from src.features import consolidate_demand_matrices
-from src.ingest_events import output_dir_for_year
-from src.tour_boxscores import ATTENDANCE_PATH, apply_tour_attendance, read_tour_attendance
+from src.features.features import consolidate_demand_matrices
+from src.ingestion.barclays_ingest import output_dir_for_year
+from src.ingestion.tour_boxscores import ATTENDANCE_PATH, apply_tour_attendance, read_tour_attendance
 
 EVENT_COLUMNS = ["event_id", "venue", "event_name", "event_type", "event_start", "event_end",
                  "end_time_basis", "attendance", "attendance_basis", "event_status"]

@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.box_scores import apply_box_scores, parse_summary
-from src.events import from_barclays_scrape
+from src.ingestion.box_scores import apply_box_scores, parse_summary
+from src.processing.events import from_barclays_scrape
 
 FIXTURES = Path(__file__).parent / "fixtures" / "espn"
 
@@ -67,7 +67,7 @@ class MatchTests(unittest.TestCase):
         self.assertEqual(list(table.attendance), [17183, 17487])
 
     def test_unmatched_events_are_left_blank_and_logged(self):
-        with self.assertLogs("src.box_scores", "WARNING") as logs:
+        with self.assertLogs("src.ingestion.box_scores", "WARNING") as logs:
             table = apply_box_scores(
                 events(("Harlem Globetrotters", "2024-02-18", "13:00:00", "basketball"),
                        ("Kehlani", "2024-02-18", "20:00:00", "concert")),

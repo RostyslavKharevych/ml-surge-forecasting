@@ -1,6 +1,6 @@
 import unittest
 
-from src.discover_events import parse_calendar
+from src.ingestion.barclays_discovery import parse_calendar
 
 
 class CalendarDiscoveryTests(unittest.TestCase):

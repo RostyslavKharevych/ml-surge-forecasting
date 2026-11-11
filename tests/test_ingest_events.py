@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from src.ingest_events import parse_page, run, audit_records
+from src.ingestion.barclays_ingest import parse_page, run, audit_records
 
 
 def page(name="Example", shows=None, description=""):
@@ -102,10 +102,10 @@ class ExtractionTests(unittest.TestCase):
                     writer.writeheader()
                     writer.writerow(dict(event_url=url, calendar_dates='["2024-01-18"]'))
                 meta = dict(retrieved_at_utc="2026-11-04T12:00:00+00:00", raw_path="saved.body", raw_sha256="hash")
-                with patch("src.ingest_events.OUTPUT_DIR", root / "output"), \
-                     patch("src.ingest_events.RAW_DATA_DIR", root / "raw"), \
-                     patch("src.ingest_events.fetch_page", return_value=(page(shows=[("1", "January", "18", start)]), meta, [meta])), \
-                     patch("src.ingest_events.time.sleep"), patch("builtins.print"):
+                with patch("src.ingestion.barclays_ingest.OUTPUT_DIR", root / "output"), \
+                     patch("src.ingestion.barclays_ingest.RAW_DATA_DIR", root / "raw"), \
+                     patch("src.ingestion.barclays_ingest.fetch_page", return_value=(page(shows=[("1", "January", "18", start)]), meta, [meta])), \
+                     patch("src.ingestion.barclays_ingest.time.sleep"), patch("builtins.print"):
                     self.assertEqual(run(manifest), expected)
 
     def test_cancellation_wins_over_rescheduling(self):
@@ -158,10 +158,10 @@ class ExtractionTests(unittest.TestCase):
                 writer.writeheader()
                 writer.writerow(dict(event_url=url, calendar_dates='["2024-01-18"]'))
             meta = dict(error="HTTPError: 404", source_url=url)
-            with patch("src.ingest_events.OUTPUT_DIR", root / "output"), \
-                 patch("src.ingest_events.RAW_DATA_DIR", root / "raw"), \
-                 patch("src.ingest_events.fetch_page", return_value=(None, meta, [meta])), \
-                 patch("src.ingest_events.time.sleep"), patch("builtins.print"):
+            with patch("src.ingestion.barclays_ingest.OUTPUT_DIR", root / "output"), \
+                 patch("src.ingestion.barclays_ingest.RAW_DATA_DIR", root / "raw"), \
+                 patch("src.ingestion.barclays_ingest.fetch_page", return_value=(None, meta, [meta])), \
+                 patch("src.ingestion.barclays_ingest.time.sleep"), patch("builtins.print"):
                 result = run(manifest)
             self.assertEqual(result, 1)
             summary = json.loads((root / "output/extraction_summary_all.json").read_text(encoding="utf-8"))

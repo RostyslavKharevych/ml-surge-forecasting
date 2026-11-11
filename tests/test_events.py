@@ -2,11 +2,11 @@ import unittest
 
 import pandas as pd
 
-from src.box_scores import GAMES_PATH
+from src.ingestion.box_scores import GAMES_PATH
 from src.config import INTERIM_DATA_DIR
-from src.events import (EVENT_COLUMNS, apply_overrides, apply_runtimes, from_barclays_scrape,
+from src.processing.events import (EVENT_COLUMNS, apply_overrides, apply_runtimes, from_barclays_scrape,
                         load_events)
-from src.tour_boxscores import ATTENDANCE_PATH
+from src.ingestion.tour_boxscores import ATTENDANCE_PATH
 
 
 def scraped(**overrides):

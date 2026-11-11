@@ -8,7 +8,7 @@ from email.message import Message
 from pathlib import Path
 from unittest.mock import patch
 
-from src import discover_events, ingest_events
+from src.ingestion import barclays_discovery as discover_events, barclays_ingest as ingest_events
 from tests.test_ingest_events import page
 
 
@@ -113,7 +113,7 @@ class EventYearTests(unittest.TestCase):
                  patch.object(ingest_events, "INTERIM_DATA_DIR", interim), \
                  patch.object(ingest_events, "OUTPUT_DIR", interim / "events/barclays_2024"), \
                  patch.object(ingest_events, "RAW_DATA_DIR", raw), \
-                 patch("src.ingest_events.time.sleep"), contextlib.redirect_stdout(io.StringIO()):
+                 patch("src.ingestion.barclays_ingest.time.sleep"), contextlib.redirect_stdout(io.StringIO()):
                 snapshot = {}
                 for year in (2024, 2025):
                     def calendar_response(request, timeout):
