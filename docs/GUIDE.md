@@ -17,29 +17,30 @@ The `data/` folder is gitignored, so a fresh clone has no data. Each step below 
 
 ```bash
 # 0. Install
-pip install -r requirements.txt -r requirements-events.txt
+pip install -r requirements.txt
 
 # 1. Ridership: download 24 monthly Uber/Lyft trip files (several hundred MB each, kept in data/raw/; ~10+ GB total) and keep only our zones
-python -m src.ingest            # -> data/interim/venue_trips_YYYY-MM.parquet
-python -m src.clean             # -> data/interim/cleaned_venue_trips_YYYY-MM.parquet
-python -m src.features          # -> data/processed/venue_demand_15min_YYYY-MM.parquet (15-min counts per venue)
+python -m src.ingestion.tlc             # -> data/interim/venue_trips_YYYY-MM.parquet
+python -m src.processing.clean_tlc      # -> data/interim/cleaned_venue_trips_YYYY-MM.parquet
+python -m src.features.features         # -> data/processed/venue_demand_15min_YYYY-MM.parquet (15-min counts per venue)
 
 # 2. Events: scrape the Barclays calendar, one year at a time
-python -m src.discover_events --year 2024
-python -m src.ingest_events  --year 2024      # -> data/interim/events/barclays_2024/events_all.csv
-python -m src.discover_events --year 2025
-python -m src.ingest_events  --year 2025
+python -m src.ingestion.barclays_discovery --year 2024
+python -m src.ingestion.barclays_ingest --year 2024      
+# -> data/interim/events/barclays_2024/events_all.csv
+python -m src.ingestion.barclays_discovery --year 2025
+python -m src.ingestion.barclays_ingest  --year 2025
 
 # 3. Event facts: end times and attendance
-python -m src.box_scores        # basketball, from ESPN    -> data/interim/box_scores.csv
-python -m src.tour_boxscores    # concert attendance       -> data/interim/tour_attendance.csv
-python -m src.weather           # hourly weather per venue -> data/interim/weather/*.json
+python -m -m src.ingestion.box_scores     # basketball, from ESPN    -> data/interim/box_scores.csv
+python -m src.ingestion.tour_boxscores    # concert attendance       -> data/interim/tour_attendance.csv
+python -m src.ingestion.weather           # hourly weather per venue -> data/interim/weather/*.json
 
 # 4. (optional) see the calibrated end-time durations and how accurate they are
-python -m src.calibration
+python -m src.processing.calibration
 
 # 5. Build the dataset
-python -m src.dataset           # -> data/processed/event_dataset.parquet
+python -m src.features.dataset            # -> data/processed/event_dataset.parquet
 ```
 
 **Check it worked.** Step 5 should print 2,480 rows: 99 train, 49 val and 162 test Events. The live websites may have changed since the original run, so small differences are possible. Then run:
