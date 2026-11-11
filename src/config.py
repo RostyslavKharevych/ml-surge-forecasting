@@ -1,21 +1,44 @@
 from pathlib import Path
 
-# Project Root & Directory Paths
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
+# Anchors to project root regardless of whether run from root, notebooks/, or subpackages
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+DATA_DIR = PROJECT_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
-# Pipeline Parameters
-TIME_INTERVAL = "15min"  # 15-minute aggregation buckets
-RANDOM_STATE = 42
+# TLC URL Base
+TLC_BASE_URL = "https://d37ci6vzurychx.cloudfront.net/trip-data"
 
-# Column Standards (PRD Table 1 Schema)
-COL_EVENT_ID = "item_or_event_id"
-COL_CATEGORY = "category_type"
-COL_START_TIME = "start_time"
-COL_END_TIME = "end_time"
-COL_ESTIMATED_SIZE = "estimated_size"
-COL_TARGET = "trip_count"
-COL_TARGET_SURGE = "surge_delta"
+# Venue zone configurations
+VENUE_CONFIG = {
+    "barclays": {
+        "coordinates": (40.6826, -73.9754),  # arena (lat, lon), for Venue Weather
+        "core_zone": 189,
+        "spillover_zones": {
+            49: 0.25,
+            62: 0.25,
+            61: 0.25,
+            97: 0.25,
+            181: 0.25,
+            190: 0.25
+        }
+    },
+    "citi_field": {
+        "coordinates": (40.7571, -73.8458),
+        "core_zone": 253,
+        "spillover_zones": {
+            92: 0.75,
+            93: 0.75
+        }
+    }
+}
+
+# Master list of all unique zones to ingest
+ALL_INGESTION_ZONES = sorted(list({
+    189, 49, 61, 62, 97, 181, 190, 253, 92, 93
+}))
+
+ANALYSIS_YEARS = [2024, 2025]
+TRAINING_PERIOD = ("2024-03-01", "2024-09-30 23:59")  # inclusive; later events are validation/test
