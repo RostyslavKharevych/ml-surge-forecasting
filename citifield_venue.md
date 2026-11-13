@@ -12,9 +12,9 @@ The ingestion pipeline:
 4. Retrieves the official start time and box-score duration for each game.
 5. Converts start times to America/New_York local time.
 6. Calculates each game's end time from its start time and duration.
-7. Writes the complete event table to `citi_field_events_2024.csv`.
+7. Labels Mets entries as `game`, adds the configured concert entries as `concert`, and writes the combined table to `citi_field_events_2024.csv`.
 
-The pipeline includes every completed Citi Field game returned for the 2024 date range. The current file contains 85 games: 80 regular-season games and 5 postseason games.
+The pipeline includes every completed Citi Field game returned for the 2024 date range, plus the configured Foo Fighters, blink-182, ATEEZ, and Green Day concert entries. The combined table contains 85 game rows and 4 concert rows. Concert end times and durations are intentionally blank for now.
 
 ## Event fields
 
@@ -23,16 +23,19 @@ The CSV contains:
 | Column | Description |
 |---|---|
 | `event_id` | Project event identifier |
-| `event_date` | Official game date |
+| `event_type` | `game` or `concert` |
+| `event_name` | Mets matchup or concert headliner |
+| `event_date` | Official game or concert date |
 | `venue` | Event venue, filtered to Citi Field |
-| `venue_zone_id` | TLC zone ID for Citi Field, 93 |
+| `venue_zone_id` | TLC venue zone ID for Citi Field, 93 |
 | `opponent` | Visiting team |
-| `start_time_local` | Official start time in New York time |
+| `start_time_local` | Game first pitch or concert headliner start time in New York time |
+| `attendance` | Provided concert attendance figure; blank for game rows |
 | `duration_minutes` | Official MLB game duration |
 | `mlb_game_id` | MLB's unique game identifier |
 | `end_time_local` | Calculated start time plus duration |
 
-Attendance, final score, and weather are not included in this event table.
+Final score and weather are not included. The concert attendance values use the figures provided for this project. Green Day's 35,000 figure is the stated tour average, not a Citi Field-specific attendance count.
 
 ## Scripts
 
@@ -60,12 +63,12 @@ It calculates `end_time_local` from `start_time_local` and `duration_minutes`, s
 
 ## EDA workflow
 
-The event table is used with the monthly TLC parquet files in `high-vol-data/`. The EDA workflow:
+The event table is used with the monthly TLC parquet files in `high-vol-data/`. The EDA pickup catchment includes TLC pickup zones **93 and 253**: zone 93 for Citi Field and nearby zone 253 so pickups from the surrounding area are included. The event venue itself remains zone 93. The EDA workflow:
 
 1. Loads the TLC pickup timestamps and pickup zones.
-2. Filters pickups to Citi Field's TLC zone, `PULocationID == 93`.
+2. Filters pickups to `PULocationID` 93 or 253.
 3. Combines the monthly files.
-4. Groups pickups into 15-minute intervals.
+4. Groups pickups into combined 15-minute catchment intervals and also retains counts by zone.
 5. Creates a game window from 30 minutes before the start through 90 minutes after the end.
 6. Labels each pickup interval as `before_game`, `during_game`, `after_game`, or `no_event`.
 7. Compares pickup counts across the event phases.

@@ -29,14 +29,78 @@ CITI_FIELD_ZONE_ID = 93
 NEW_YORK = ZoneInfo("America/New_York")
 OUTPUT_COLUMNS = [
     "event_id",
+    "event_type",
+    "event_name",
     "event_date",
     "venue",
     "venue_zone_id",
     "opponent",
     "start_time_local",
+    "attendance",
     "duration_minutes",
     "mlb_game_id",
     "end_time_local",
+]
+
+# Headliner start times and attendance figures supplied for this project.
+# Green Day's number is a tour-average figure, not a Citi Field-specific count.
+CONCERTS_2024 = [
+    {
+        "event_id": "CONCERT_FOO_FIGHTERS_20240719",
+        "event_type": "concert",
+        "event_name": "Foo Fighters",
+        "event_date": "2024-07-19",
+        "venue": CITI_FIELD,
+        "venue_zone_id": CITI_FIELD_ZONE_ID,
+        "opponent": None,
+        "start_time_local": "2024-07-19 20:00:00-0400",
+        "attendance": 40000,
+        "duration_minutes": None,
+        "mlb_game_id": None,
+        "end_time_local": None,
+    },
+    {
+        "event_id": "CONCERT_BLINK182_20240721",
+        "event_type": "concert",
+        "event_name": "blink-182",
+        "event_date": "2024-07-21",
+        "venue": CITI_FIELD,
+        "venue_zone_id": CITI_FIELD_ZONE_ID,
+        "opponent": None,
+        "start_time_local": "2024-07-21 21:00:00-0400",
+        "attendance": 34279,
+        "duration_minutes": None,
+        "mlb_game_id": None,
+        "end_time_local": None,
+    },
+    {
+        "event_id": "CONCERT_ATEEZ_20240803",
+        "event_type": "concert",
+        "event_name": "ATEEZ",
+        "event_date": "2024-08-03",
+        "venue": CITI_FIELD,
+        "venue_zone_id": CITI_FIELD_ZONE_ID,
+        "opponent": None,
+        "start_time_local": "2024-08-03 21:30:00-0400",
+        "attendance": 28467,
+        "duration_minutes": None,
+        "mlb_game_id": None,
+        "end_time_local": None,
+    },
+    {
+        "event_id": "CONCERT_GREEN_DAY_20240805",
+        "event_type": "concert",
+        "event_name": "Green Day",
+        "event_date": "2024-08-05",
+        "venue": CITI_FIELD,
+        "venue_zone_id": CITI_FIELD_ZONE_ID,
+        "opponent": None,
+        "start_time_local": "2024-08-05 20:30:00-0400",
+        "attendance": 35000,
+        "duration_minutes": None,
+        "mlb_game_id": None,
+        "end_time_local": None,
+    },
 ]
 
 
@@ -101,11 +165,14 @@ def fetch_games(year: int) -> pd.DataFrame:
             rows.append(
                 {
                     "event_id": f"METS_{game['officialDate'].replace('-', '')}_{game_id}",
+                    "event_type": "game",
+                    "event_name": f"Mets vs. {game['teams']['away']['team']['name']}",
                     "event_date": game["officialDate"],
                     "venue": CITI_FIELD,
                     "venue_zone_id": CITI_FIELD_ZONE_ID,
                     "opponent": game["teams"]["away"]["team"]["name"],
                     "start_time_local": start_local.strftime("%Y-%m-%d %H:%M:%S%z"),
+                    "attendance": None,
                     "duration_minutes": _duration_minutes(feed),
                     "mlb_game_id": game_id,
                 }
@@ -118,6 +185,17 @@ def fetch_games(year: int) -> pd.DataFrame:
     return events[OUTPUT_COLUMNS]
 
 
+def fetch_events(year: int) -> pd.DataFrame:
+    """Return MLB games plus the configured Citi Field concerts for a year."""
+    games = fetch_games(year)
+    concerts = pd.DataFrame(CONCERTS_2024) if year == 2024 else pd.DataFrame()
+    events = pd.concat([games, concerts], ignore_index=True)
+    events["event_date"] = pd.to_datetime(events["event_date"])
+    events = events.sort_values(["event_date", "start_time_local", "event_id"])
+    events["event_date"] = events["event_date"].dt.strftime("%Y-%m-%d")
+    return events[OUTPUT_COLUMNS].reset_index(drop=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--year", type=int, default=2024)
@@ -126,7 +204,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    events = fetch_games(args.year)
+    events = fetch_events(args.year)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     events.to_csv(args.output, index=False)
     monthly = events.groupby(events["event_date"].str[:7]).size()
