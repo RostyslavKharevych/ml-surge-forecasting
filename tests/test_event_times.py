@@ -3,7 +3,17 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from scripts.add_event_end_times import add_event_end_times
+from src.processing.merge_events import add_event_end_times
+
+
+def event_csv_path():
+    return Path(__file__).parents[1] / "data" / "interim" / "citi_field_events_2024.csv"
+
+
+EVENT_CSV_SKIP = pytest.mark.skipif(
+    not event_csv_path().exists(),
+    reason="Generated event CSV is local data and is intentionally not tracked by Git",
+)
 
 
 def test_calculates_end_time_from_start_and_duration():
@@ -74,8 +84,9 @@ def test_rejects_invalid_event_values(events, message):
         add_event_end_times(events)
 
 
+@EVENT_CSV_SKIP
 def test_event_csv_has_required_complete_unique_records():
-    csv_path = Path(__file__).parents[1] / "citi_field_events_2024.csv"
+    csv_path = event_csv_path()
     events = pd.read_csv(csv_path)
 
     required_columns = {
@@ -108,8 +119,9 @@ def test_event_csv_has_required_complete_unique_records():
     assert concerts["end_time_local"].isna().all()
 
 
+@EVENT_CSV_SKIP
 def test_event_csv_end_times_match_duration():
-    csv_path = Path(__file__).parents[1] / "citi_field_events_2024.csv"
+    csv_path = event_csv_path()
     events = pd.read_csv(csv_path)
     games = events[events["event_type"] == "game"]
     start = pd.to_datetime(games["start_time_local"], utc=True)
@@ -123,8 +135,9 @@ def test_event_csv_end_times_match_duration():
     )
 
 
+@EVENT_CSV_SKIP
 def test_event_csv_is_within_tlc_year_and_sorted():
-    csv_path = Path(__file__).parents[1] / "citi_field_events_2024.csv"
+    csv_path = event_csv_path()
     events = pd.read_csv(csv_path)
     dates = pd.to_datetime(events["event_date"])
 
@@ -134,9 +147,10 @@ def test_event_csv_is_within_tlc_year_and_sorted():
     assert events.loc[events.event_type == "game", "mlb_game_id"].is_unique
 
 
+@EVENT_CSV_SKIP
 def test_event_csv_has_expected_citi_field_home_game_count():
     """The 2024 source should contain 80 regular-season and 5 postseason games."""
-    csv_path = Path(__file__).parents[1] / "citi_field_events_2024.csv"
+    csv_path = event_csv_path()
     events = pd.read_csv(csv_path)
     events = events[events.event_type == "game"]
 
@@ -145,8 +159,9 @@ def test_event_csv_has_expected_citi_field_home_game_count():
     assert (events["event_date"] >= "2024-10-01").sum() == 5
 
 
+@EVENT_CSV_SKIP
 def test_event_csv_contains_requested_concerts_and_attendance():
-    csv_path = Path(__file__).parents[1] / "citi_field_events_2024.csv"
+    csv_path = event_csv_path()
     events = pd.read_csv(csv_path)
     concerts = events[events.event_type == "concert"].set_index("event_name")
 
@@ -160,8 +175,9 @@ def test_event_csv_contains_requested_concerts_and_attendance():
     assert concerts["venue"].eq("Citi Field").all()
 
 
+@EVENT_CSV_SKIP
 def test_event_csv_concert_start_times_are_local_and_end_times_are_blank():
-    csv_path = Path(__file__).parents[1] / "citi_field_events_2024.csv"
+    csv_path = event_csv_path()
     events = pd.read_csv(csv_path)
     concerts = events[events.event_type == "concert"].set_index("event_name")
 
@@ -173,7 +189,7 @@ def test_event_csv_concert_start_times_are_local_and_end_times_are_blank():
 
 
 def test_duration_parser_handles_delay_note():
-    from scripts.ingest_citi_field_events import _duration_minutes
+    from src.ingestion.citi_field_ingest import _duration_minutes
 
     feed = {"liveData": {"boxscore": {"info": [{"label": "T", "value": "2:27 (:55 delay)."}]}}}
 
@@ -181,14 +197,14 @@ def test_duration_parser_handles_delay_note():
 
 
 def test_duration_parser_requires_duration():
-    from scripts.ingest_citi_field_events import _duration_minutes
+    from src.ingestion.citi_field_ingest import _duration_minutes
 
     with pytest.raises(ValueError, match="duration"):
         _duration_minutes({"liveData": {"boxscore": {"info": []}}})
 
 
 def test_fetch_games_filters_deduplicates_and_keeps_all_games(monkeypatch):
-    from scripts import ingest_citi_field_events as ingest
+    from src.ingestion import citi_field_ingest as ingest
 
     games = [
         {

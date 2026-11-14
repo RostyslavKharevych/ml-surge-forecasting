@@ -5,7 +5,17 @@ env/
 
 # Local data files (large TLC parquet files and generated datasets)
 high-vol-data/
-data/raw/
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/tlc/
+data/raw/tlc/*
+!data/raw/tlc/.gitkeep
+!data/raw/tlc/barclays/
+!data/raw/tlc/citi_field/
+data/raw/tlc/barclays/*
+!data/raw/tlc/barclays/.gitkeep
+data/raw/tlc/citi_field/*
+!data/raw/tlc/citi_field/.gitkeep
 data/interim/
 data/processed/
 *.parquet

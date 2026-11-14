@@ -2,7 +2,7 @@
 
 Uses MLB's public Stats API for game dates, opponents, start times, game IDs,
 and official box-score durations. End times are calculated by the project's
-``add_event_end_times`` function.
+    ``add_event_end_times`` processor.
 """
 
 from __future__ import annotations
@@ -16,16 +16,13 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 import requests
 
-try:
-    # Package import used by tests and other Python modules.
-    from .add_event_end_times import add_event_end_times
-except ImportError:  # pragma: no cover - used when run as a file
-    from add_event_end_times import add_event_end_times
+from src.config import CITI_FIELD_CORE_ZONE, CITI_FIELD_EVENTS_PATH
+from src.processing.merge_events import add_event_end_times
 
 API_ROOT = "https://statsapi.mlb.com/api/v1"
 METS_TEAM_ID = 121
 CITI_FIELD = "Citi Field"
-CITI_FIELD_ZONE_ID = 93
+CITI_FIELD_ZONE_ID = CITI_FIELD_CORE_ZONE
 NEW_YORK = ZoneInfo("America/New_York")
 OUTPUT_COLUMNS = [
     "event_id",
@@ -200,7 +197,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--year", type=int, default=2024)
     parser.add_argument(
-        "--output", type=Path, default=Path("citi_field_events_2024.csv")
+        "--output", type=Path, default=CITI_FIELD_EVENTS_PATH
     )
     args = parser.parse_args()
 

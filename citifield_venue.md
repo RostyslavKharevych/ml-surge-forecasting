@@ -12,7 +12,7 @@ The ingestion pipeline:
 4. Retrieves the official start time and box-score duration for each game.
 5. Converts start times to America/New_York local time.
 6. Calculates each game's end time from its start time and duration.
-7. Labels Mets entries as `game`, adds the configured concert entries as `concert`, and writes the combined table to `citi_field_events_2024.csv`.
+7. Labels Mets entries as `game`, adds the configured concert entries as `concert`, and writes the combined table to `data/interim/citi_field_events_2024.csv`.
 
 The pipeline includes every completed Citi Field game returned for the 2024 date range, plus the configured Foo Fighters, blink-182, ATEEZ, and Green Day concert entries. The combined table contains 85 game rows and 4 concert rows. Concert end times and durations are intentionally blank for now.
 
@@ -42,28 +42,26 @@ Final score and weather are not included. The concert attendance values use the 
 Run the ingestion pipeline from the project root with:
 
 ```bash
-./.venv/bin/python scripts/ingest_citi_field_events.py \
-  --year 2024 \
-  --output citi_field_events_2024.csv
+python -m src.ingestion.citi_field_ingest --year 2024
 ```
 
 The ingestion script is located at:
 
 ```text
-scripts/ingest_citi_field_events.py
+src/ingestion/citi_field_ingest.py
 ```
 
 The end-time calculation is reusable in:
 
 ```text
-scripts/add_event_end_times.py
+src/processing/merge_events.py
 ```
 
 It calculates `end_time_local` from `start_time_local` and `duration_minutes`, so future event files can use the same logic without manually entering end times.
 
 ## EDA workflow
 
-The event table is used with the monthly TLC parquet files in `high-vol-data/`. The EDA pickup catchment includes TLC pickup zones **93 and 253**: zone 93 for Citi Field and nearby zone 253 so pickups from the surrounding area are included. The event venue itself remains zone 93. The EDA workflow:
+The event table is used with monthly TLC parquet files in `data/raw/tlc/citi_field/`; the loader also accepts the legacy `high-vol-data/` folder. The EDA pickup catchment includes TLC pickup zones **93 and 253**: zone 93 for Citi Field and nearby zone 253 so pickups from the surrounding area are included. The event venue itself remains zone 93. The EDA workflow:
 
 1. Loads the TLC pickup timestamps and pickup zones.
 2. Filters pickups to `PULocationID` 93 or 253.
@@ -85,13 +83,14 @@ Tests are stored in:
 
 ```text
 tests/test_event_times.py
+tests/test_pipeline_structure.py
 ```
 
 Run them with:
 
 ```bash
-./.venv/bin/python -m pytest -q
+python -m pytest -q
 ```
 
-The tests verify end-time calculations, invalid inputs, complete CSV records, unique IDs, Citi Field filtering, date-range coverage, duration parsing, schedule deduplication, and exclusion of away or unfinished games.
+The tests verify end-time calculations, invalid inputs, event CSV records when the local generated CSV is present, unique IDs, zone filtering and 15-minute aggregation, event-window boundaries, duration parsing, schedule deduplication, and exclusion of away or unfinished games.
 
