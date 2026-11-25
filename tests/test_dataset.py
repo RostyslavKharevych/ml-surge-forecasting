@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from src.features.dataset import build_dataset
+from src.features.dataset import assign_split, build_dataset
 
 
 def event(start, end, status="held", event_type="concert"):
@@ -41,17 +41,39 @@ class BuildDatasetTests(unittest.TestCase):
             self.rows = build_dataset(self.events, demand(), weather())
 
     def test_one_row_per_event_and_prediction_bucket(self):
+        expected_ids = [
+            f"BARCLAYS_{s}"
+            for s in [
+                "2024-02-28 19:00",
+                "2024-03-26 14:00",
+                "2024-03-26 19:00",
+                "2024-11-05 19:00",
+                "2024-11-11 19:00",
+                "2025-01-14 19:00",
+            ]
+        ]
         self.assertEqual(self.rows.groupby("event_id").size().to_dict(),
-                         {f"BARCLAYS_{s}": 8 for s in ["2024-03-26 14:00", "2024-03-26 19:00",
-                                                       "2024-11-05 19:00", "2024-11-11 19:00",
-                                                       "2025-01-14 19:00"]})
+                         {eid: 8 for eid in expected_ids})
         evening = self.rows[self.rows.event_id == "BARCLAYS_2024-03-26 19:00"]
         self.assertEqual(list(evening.minutes_since_end), list(range(-30, 90, 15)))
         self.assertEqual(evening.time_bin.min(), pd.Timestamp("2024-03-26 21:00"))
 
     def test_split_by_event_start(self):
-        splits = self.rows.groupby("event_id").split.first()
-        self.assertEqual(list(splits), ["train", "train", "val", "val", "test"])
+        # 6 valid held events sorted chronologically -> 4 train (~65%), 1 val (~15%), 1 test (~20%)
+        ordered = self.rows.groupby("event_id", sort=False).agg(
+            event_start=("event_start", "first"),
+            split=("split", "first"),
+            n_splits=("split", "nunique"),
+        ).sort_values("event_start")
+        self.assertTrue((ordered.n_splits == 1).all())
+        self.assertEqual(list(ordered.split), ["train", "train", "train", "train", "val", "test"])
+
+        # 20 events -> exact 13 / 3 / 4 (65% / 15% / 20%) chronological split
+        starts = pd.Series(pd.date_range("2024-03-01", periods=20, freq="7D"))
+        split_20 = assign_split(starts)
+        self.assertEqual(split_20.value_counts().to_dict(), {"train": 13, "val": 3, "test": 4})
+        self.assertLessEqual(starts[split_20 == "train"].max(), starts[split_20 == "val"].min())
+        self.assertLessEqual(starts[split_20 == "val"].max(), starts[split_20 == "test"].min())
 
     def test_next_showing_gap(self):
         matinee = self.rows[self.rows.event_id == "BARCLAYS_2024-03-26 14:00"]

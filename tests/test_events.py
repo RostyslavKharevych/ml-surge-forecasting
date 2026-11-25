@@ -1,11 +1,33 @@
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 import pandas as pd
 
 from src.ingestion.box_scores import GAMES_PATH
-from src.config import INTERIM_DATA_DIR
-from src.processing.events import (EVENT_COLUMNS, apply_overrides, apply_runtimes, from_barclays_scrape,
-                        load_events)
+from src.config import (
+    ALL_INGESTION_ZONES,
+    FALLBACK_TIMESTAMP_COL,
+    INTERIM_DATA_DIR,
+    PRIMARY_TIMESTAMP_COL,
+    VENUE_CONFIG,
+)
+from src.features.baseline import is_holiday as baseline_is_holiday
+from src.features.features import aggregate_venue_demand
+from src.processing.clean_tlc import clean_venue_dataframe
+from src.processing.events import (
+    EVENT_COLUMNS,
+    apply_overrides,
+    apply_runtimes,
+    citi_field_events,
+    from_barclays_scrape,
+    from_citi_field_events,
+    is_federal_holiday,
+    is_holiday,
+    is_nyc_school_holiday,
+    load_events,
+)
 from src.ingestion.tour_boxscores import ATTENDANCE_PATH
 
 
@@ -121,3 +143,176 @@ class RealEventTableTests(unittest.TestCase):
             with self.subTest(basis=basis):
                 self.assertEqual(set(held[held.event_type.isin(types)].end_time_basis), {basis})
         self.assertTrue(set(events.attendance_basis) <= {"", "box_score", "reported", "tour_boxscore"})
+
+
+class CitiFieldAdapterTests(unittest.TestCase):
+    def test_maps_games_and_concerts_into_event_table(self):
+        raw = pd.DataFrame([
+            {
+                "event_id": "METS_20240712_745800",
+                "event_type": "game",
+                "event_name": "Mets vs. Rockies",
+                "event_date": "2024-07-12",
+                "venue": "Citi Field",
+                "start_time_local": "2024-07-12 19:10:00-0400",
+                "attendance": "",
+                "duration_minutes": "165",
+                "end_time_local": "",
+            },
+            {
+                "event_id": "CONCERT_FOO_FIGHTERS_20240719",
+                "event_type": "concert",
+                "event_name": "Foo Fighters",
+                "event_date": "2024-07-19",
+                "venue": "Citi Field",
+                "start_time_local": "2024-07-19 20:00:00-0400",
+                "attendance": "40000",
+                "duration_minutes": "",
+                "end_time_local": "",
+            },
+        ])
+
+        events = from_citi_field_events(raw)
+
+        self.assertEqual(list(events.columns), EVENT_COLUMNS)
+        self.assertEqual(list(events.event_id), ["CITI_FIELD_20240712_1910", "CITI_FIELD_20240719_2000"])
+        self.assertEqual(list(events.venue), ["citi_field", "citi_field"])
+        self.assertEqual(list(events.event_type), ["baseball", "concert"])
+        self.assertEqual(events.loc[0, "event_start"], pd.Timestamp("2024-07-12 19:10"))
+        self.assertIsNone(events.loc[0, "event_start"].tz)
+        self.assertEqual(events.loc[0, "event_end"], pd.Timestamp("2024-07-12 21:55"))
+        self.assertEqual(events.loc[0, "end_time_basis"], "box_score")
+        self.assertTrue(pd.isna(events.loc[0, "attendance"]))
+        self.assertEqual(events.loc[0, "attendance_basis"], "")
+        self.assertTrue(pd.isna(events.loc[1, "event_end"]))
+        self.assertEqual(events.loc[1, "end_time_basis"], "")
+        self.assertEqual(events.loc[1, "attendance"], 40000)
+        self.assertEqual(events.loc[1, "attendance_basis"], "reported")
+        self.assertEqual(list(events.event_status), ["held", "held"])
+
+    def test_reads_csv_and_handles_empty_input(self):
+        empty = from_citi_field_events(pd.DataFrame())
+        self.assertEqual(list(empty.columns), EVENT_COLUMNS)
+        self.assertTrue(empty.empty)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "citi.csv"
+            pd.DataFrame([{
+                "event_type": "game",
+                "event_name": "Mets vs. Braves",
+                "event_date": "2024-05-10",
+                "start_time_local": "2024-05-10 19:10:00-0400",
+                "end_time_local": "2024-05-10 21:45:00-0400",
+                "attendance": "32500",
+            }]).to_csv(csv_path, index=False)
+            loaded = citi_field_events(path=csv_path)
+            self.assertEqual(loaded.loc[0, "event_id"], "CITI_FIELD_20240510_1910")
+            self.assertEqual(loaded.loc[0, "event_end"], pd.Timestamp("2024-05-10 21:45"))
+            self.assertEqual(loaded.loc[0, "attendance"], 32500)
+
+    def test_load_events_combines_barclays_and_citi_field_with_tz_conversion(self):
+        barclays = from_barclays_scrape(scraped(scheduled_start_time="19:30:00"))
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            overrides = tmp / "overrides.csv"
+            runtimes = tmp / "runtimes.csv"
+            citi_csv = tmp / "citi_field_events_2024.csv"
+            pd.DataFrame(columns=[
+                "venue", "event_date", "event_name", "event_start", "event_end",
+                "end_time_basis", "attendance", "attendance_basis", "event_status", "source",
+            ]).to_csv(overrides, index=False)
+            pd.DataFrame(columns=["venue", "event_name", "year", "runtime_minutes", "source"]).to_csv(
+                runtimes, index=False
+            )
+            pd.DataFrame([
+                {
+                    "event_type": "game",
+                    "event_name": "Mets vs. Phillies",
+                    "event_date": "2024-03-29",
+                    "start_time_local": "2024-03-29 13:40:00-0400",
+                    "duration_minutes": "155",
+                    "end_time_local": "",
+                    "attendance": "41000",
+                },
+                {
+                    "event_type": "concert",
+                    "event_name": "Winter Special",
+                    "event_date": "2024-11-15",
+                    "start_time_local": "2024-11-15 20:00:00-0500",
+                    "duration_minutes": "",
+                    "end_time_local": "",
+                    "attendance": "30000",
+                },
+            ]).to_csv(citi_csv, index=False)
+
+            with patch("src.processing.events.barclays_events", return_value=barclays):
+                combined = load_events(
+                    years=[2024],
+                    overrides_path=overrides,
+                    box_scores_path=None,
+                    runtimes_path=runtimes,
+                    tour_attendance_path=None,
+                    citi_field_path=citi_csv,
+                    calibrate=False,
+                )
+
+        self.assertEqual(set(combined.venue), {"barclays", "citi_field"})
+        self.assertEqual(len(combined), 3)
+        citi_game = combined[combined.event_name == "Mets vs. Phillies"].iloc[0]
+        self.assertEqual(citi_game.event_start, pd.Timestamp("2024-03-29 13:40"))
+        self.assertIsNone(citi_game.event_start.tz)
+        self.assertEqual(citi_game.event_end, pd.Timestamp("2024-03-29 16:15"))
+        self.assertEqual(citi_game.end_time_basis, "box_score")
+        citi_concert = combined[combined.event_name == "Winter Special"].iloc[0]
+        self.assertEqual(citi_concert.event_start, pd.Timestamp("2024-11-15 20:00"))
+        self.assertTrue(pd.isna(citi_concert.event_end))
+
+
+class HolidayHelperTests(unittest.TestCase):
+    def test_federal_and_nyc_school_holiday_flags(self):
+        ts = pd.Series(pd.to_datetime([
+            "2024-11-11 19:00",  # Veterans Day (federal + NYC school)
+            "2024-02-20 19:00",  # Midwinter Recess (NYC school only)
+            "2024-11-01 19:00",  # Diwali (NYC school only)
+            "2025-01-29 19:00",  # Lunar New Year (NYC school only)
+            "2025-04-16 19:00",  # Spring Recess 2025 (NYC school only)
+            "2025-10-20 19:00",  # Diwali 2025 (NYC school only)
+            "2024-03-26 19:00",  # Regular Tuesday
+            "2024-11-05 19:00",  # Non-holiday Tuesday
+        ]))
+
+        self.assertEqual(list(is_federal_holiday(ts)), [True, False, False, False, False, False, False, False])
+        self.assertEqual(list(is_nyc_school_holiday(ts)), [True, True, True, True, True, True, False, False])
+        self.assertEqual(list(is_holiday(ts)), [True, True, True, True, True, True, False, False])
+        self.assertEqual(list(baseline_is_holiday(ts)), list(is_holiday(ts)))
+        empty = pd.Series([], dtype="datetime64[ns]")
+        self.assertTrue(is_holiday(empty).empty)
+
+
+class ConfigAndTimestampFallbackTests(unittest.TestCase):
+    def test_canonical_prd_zones_and_timestamp_fallback(self):
+        self.assertEqual(VENUE_CONFIG["citi_field"]["core_zone"], 253)
+        self.assertEqual(VENUE_CONFIG["citi_field"]["spillover_zones"], {93: 0.75})
+        self.assertEqual(VENUE_CONFIG["barclays"]["core_zone"], 189)
+        self.assertEqual(ALL_INGESTION_ZONES, [49, 61, 62, 93, 97, 181, 189, 190, 253])
+        self.assertEqual(PRIMARY_TIMESTAMP_COL, "request_datetime")
+        self.assertEqual(FALLBACK_TIMESTAMP_COL, "pickup_datetime")
+
+        raw = pd.DataFrame({
+            "request_datetime": [pd.NaT, "2024-07-01 19:00:00"],
+            "pickup_datetime": ["2024-07-01 19:05:00", "2024-07-01 19:05:00"],
+            "dropoff_datetime": ["2024-07-01 19:20:00", "2024-07-01 19:20:00"],
+            "PULocationID": [253, 93],
+            "trip_miles": [3.0, 4.0],
+            "trip_time": [900, 900],
+            "base_passenger_fare": [15.0, 20.0],
+            "driver_pay": [10.0, 12.0],
+        })
+        cleaned, report = clean_venue_dataframe(raw)
+        self.assertEqual(report["final_rows"], 2)
+        agg = aggregate_venue_demand(
+            cleaned.drop(columns=["request_datetime"]),
+            "citi_field",
+            VENUE_CONFIG["citi_field"],
+        )
+        self.assertAlmostEqual(agg["weighted_demand"].sum(), 1.75)

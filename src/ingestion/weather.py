@@ -30,7 +30,7 @@ def to_buckets(archive, venue):
                           "temp_f": hourly["temperature_2m"],
                           "wind_mph": hourly["wind_speed_10m"]})
     buckets = hours.loc[hours.index.repeat(len(QUARTERS))].reset_index(drop=True)
-    buckets.insert(1, "timestamp_15m", buckets.pop("hour") + list(QUARTERS) * len(hours))
+    buckets.insert(1, "timestamp_15m", buckets.pop("hour") + pd.to_timedelta([0, 0.25, 0.5, 0.75] * len(hours), unit="h"))
     buckets["is_raining"] = buckets.precipitation_mm > RAIN_MM
     return buckets
 

@@ -10,7 +10,7 @@ import logging
 import pandas as pd
 
 from src.features.baseline import add_baseline, drop_events_without_baseline, is_holiday, prediction_buckets
-from src.config import PROCESSED_DATA_DIR, TRAINING_PERIOD
+from src.config import PROCESSED_DATA_DIR
 from src.processing.events import load_events
 from src.features.features import consolidate_demand_matrices, engineer_feature_lags
 from src.ingestion.weather import load_weather
@@ -18,10 +18,9 @@ from src.ingestion.weather import load_weather
 log = logging.getLogger(__name__)
 
 OUTPUT_PATH = PROCESSED_DATA_DIR / "event_dataset.parquet"
-# Chronological split by Event Start (CTP_PRD.md); inclusive bounds.
-SPLITS = {"train": TRAINING_PERIOD,
-          "val": ("2024-10-01", "2024-12-31 23:59"),
-          "test": ("2025-01-01", "2025-12-31 23:59")}
+# Grouped chronological event split (~65% train / 15% val / 20% test sorted by event_start).
+TRAIN_FRAC = 0.65
+VAL_FRAC = 0.15
 EVENT_FIELDS = ["event_id", "venue", "event_type", "event_start", "event_end", "end_time_basis",
                 "attendance", "attendance_basis"]
 DEMAND_FIELDS = ["core_trips", "spillover_trips", "weighted_demand", "baseline", "surge_delta",
@@ -31,11 +30,26 @@ DEMAND_FIELDS = ["core_trips", "spillover_trips", "weighted_demand", "baseline",
 WEATHER_FIELDS = ["precipitation_mm", "temp_f", "wind_mph", "is_raining"]
 
 
-def assign_split(starts):
-    """Split name per Event Start; None outside every split period."""
+def assign_split(starts, train_frac: float = TRAIN_FRAC, val_frac: float = VAL_FRAC):
+    """Assign chronological train/val/test split (~65/15/20) sorted by Event Start."""
     split = pd.Series(None, index=starts.index, dtype=object)
-    for name, (lo, hi) in SPLITS.items():
-        split[starts.between(lo, hi)] = name
+    valid = starts.dropna().sort_values(kind="mergesort")
+    n = len(valid)
+    if n == 0:
+        return split
+    if n == 1:
+        split.loc[valid.index] = "train"
+        return split
+    if n == 2:
+        split.loc[valid.index[0]] = "train"
+        split.loc[valid.index[1]] = "test"
+        return split
+
+    train_end = max(1, min(n - 2, round(n * train_frac)))
+    val_end = max(train_end + 1, min(n - 1, round(n * (train_frac + val_frac))))
+    split.loc[valid.index[:train_end]] = "train"
+    split.loc[valid.index[train_end:val_end]] = "val"
+    split.loc[valid.index[val_end:]] = "test"
     return split
 
 
@@ -48,7 +62,7 @@ def next_showing_starts(events, held):
 
 
 def build_dataset(events, demand, weather):
-    """Prediction Window rows for held Events with a full Baseline and an Event Start in a split.
+    """Prediction Window rows for held Events with a full Baseline, split ~65/15/20 chronologically.
     `demand` is the contiguous venue grid from consolidate_demand_matrices; `weather` as
     load_weather returns it."""
     demand = engineer_feature_lags(add_baseline(demand, events))
@@ -56,11 +70,6 @@ def build_dataset(events, demand, weather):
     held = events[(events.event_status == "held") & events.event_start.notna()]
     kept = drop_events_without_baseline(held, demand).copy()
     kept["split"] = assign_split(kept.event_start)
-    outside = kept.split.isna()
-    if outside.any():
-        log.warning("%d events dropped, Event Start outside every split: %s", outside.sum(),
-                    list(kept.event_id[outside]))
-    kept = kept[~outside]
     kept["next_start"] = next_showing_starts(kept, held)
 
     rows = (kept[EVENT_FIELDS + ["split", "next_start"]]

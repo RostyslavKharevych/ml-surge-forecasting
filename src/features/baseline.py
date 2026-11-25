@@ -10,7 +10,8 @@ import warnings
 
 import numpy as np
 import pandas as pd
-from pandas.tseries.holiday import USFederalHolidayCalendar
+
+from src.processing.events import is_holiday
 
 log = logging.getLogger(__name__)
 
@@ -32,12 +33,6 @@ def affected_slots(demand, events):
                      & demand.timestamp_15m.between((e.event_start - AFFECTED_MARGIN).floor("15min"),
                                                     e.event_end + AFFECTED_MARGIN))
     return affected
-
-
-def is_holiday(timestamps):
-    """Boolean per timestamp: its day is a US federal holiday."""
-    days = timestamps.dt.normalize()
-    return days.isin(USFederalHolidayCalendar().holidays(days.min(), days.max()))
 
 
 def _venue_baseline(weighted, clean):

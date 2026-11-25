@@ -116,10 +116,9 @@ A Tuesday afternoon baseball game at Citi Field and a sold-out Saturday night co
 * **$R^2$ / MAPE:** Secondary metrics for variance explained and relative percentage error.
 
 ### Validation Strategy
-* **Chronological Split (No Random Shuffling):**
-  * **Train:** March 2024 – September 2024 events
-  * **Validation:** October 2024 – December 2024 events (hyperparameter tuning)
-  * **Test (Holdout):** 2025 events (unseen games and concerts)
+* **Grouped Chronological Event Split (No Random Shuffling / No Data Leakage):**
+  * Held events with valid baselines are sorted chronologically by `event_start` and partitioned at the **event** level (~**65% Train / 15% Validation / 20% Test**), keeping all 15-minute buckets of a given `event_id` in the same split.
+  * This replaces fixed 2024/2025 calendar cutoffs so both MLB (spring–fall) and NBA/concert seasons are represented in training while strictly preserving temporal order.
 * **Cross-Venue Generalization Check:** Evaluate how well a model trained primarily on Citi Field transfers learned parameters (attendance scaling, weather sensitivity) to Barclays Center.
 
 ### Success Benchmarks
