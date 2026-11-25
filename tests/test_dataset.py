@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from src.features.dataset import assign_split, build_dataset
+from src.features.dataset import MODEL_COLUMNS, assign_split, build_dataset, to_model_dataset
 
 
 def event(start, end, status="held", event_type="concert"):
@@ -94,6 +94,16 @@ class BuildDatasetTests(unittest.TestCase):
                                     "day_of_week", "demand_lag_1"]].isna().any().any())
         holiday = self.rows.groupby("event_id").is_holiday.all()
         self.assertEqual(list(holiday[holiday].index), ["BARCLAYS_2024-11-11 19:00"])
+
+    def test_to_model_dataset_matches_contract_1(self):
+        model_df = to_model_dataset(self.rows)
+        self.assertEqual(list(model_df.columns), MODEL_COLUMNS)
+        self.assertEqual(len(model_df), len(self.rows))
+        self.assertTrue((model_df["venue_zone_id"] == 189).all())
+        self.assertEqual(model_df["attendance_est"].dtype, pd.Int64Dtype())
+        self.assertTrue((model_df["y_actual"] == 10.0).all())
+        self.assertTrue((model_df["y_baseline"] == 10.0).all())
+        self.assertTrue((model_df["surge_delta"] == 0.0).all())
 
 
 if __name__ == "__main__":

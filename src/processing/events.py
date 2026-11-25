@@ -104,9 +104,14 @@ def from_barclays_scrape(scrape):
     return _finalise(events)
 
 
-def barclays_events(years=ANALYSIS_YEARS):
-    scrape = pd.concat([pd.read_csv(output_dir_for_year(year) / "events_all.csv",
-                                    dtype=str, keep_default_na=False) for year in years])
+def barclays_events(years=ANALYSIS_YEARS, missing_ok: bool = False):
+    paths = [output_dir_for_year(year) / "events_all.csv" for year in years]
+    existing = [p for p in paths if p.exists()]
+    if not existing:
+        if missing_ok:
+            return pd.DataFrame(columns=EVENT_COLUMNS)
+        raise FileNotFoundError(f"No Barclays event CSVs found among: {paths}")
+    scrape = pd.concat([pd.read_csv(p, dtype=str, keep_default_na=False) for p in existing])
     return from_barclays_scrape(scrape.reset_index(drop=True))
 
 
@@ -196,7 +201,12 @@ def citi_field_events(
 def apply_overrides(events, overrides):
     """Apply hand-verified facts. Each override key must match exactly one scraped showing;
     several override rows for one key split that showing into several Events."""
+    if events.empty:
+        return events
     overrides = overrides.fillna("").astype(str)
+    overrides = overrides[overrides["venue"].isin(events["venue"].unique())]
+    if overrides.empty:
+        return events
     # The id carries the showing date even when the start time is TBA.
     events = events.assign(event_date=pd.to_datetime(
         events.event_id.str.split("_").str[-2], format="%Y%m%d").dt.strftime("%Y-%m-%d"))
@@ -221,6 +231,11 @@ def apply_runtimes(events, runtimes):
     """Event End = Event Start + a production's published runtime, for held showings whose
     end is still blank. A production is keyed by (venue, event_name, year); each runtime row
     must match at least one showing."""
+    if events.empty:
+        return events
+    runtimes = runtimes[runtimes["venue"].isin(events["venue"].unique())]
+    if runtimes.empty:
+        return events
     events = events.copy()
     key = events[["venue", "event_name"]].assign(year=events.event_start.dt.year.astype("Int64").astype(str))
     for _, row in runtimes.iterrows():
@@ -235,23 +250,29 @@ def apply_runtimes(events, runtimes):
 
 def load_events(years=ANALYSIS_YEARS, overrides_path=OVERRIDES_PATH, box_scores_path=GAMES_PATH,
                 runtimes_path=RUNTIMES_PATH, tour_attendance_path=ATTENDANCE_PATH,
-                citi_field_path=None, include_citi_field=True, calibrate=True):
+                citi_field_path=None, include_barclays=True, include_citi_field=True, calibrate=True):
     """The Event table the merge reads. Combines Barclays and (when present) Citi Field events;
     reviewed overrides win over box scores, tour box scores and runtimes; calibrated category
     durations fill the ends still blank. A None enrichment path skips that enrichment."""
     overrides = pd.read_csv(overrides_path, dtype=str, keep_default_na=False)
-    frames = [barclays_events(years)]
+    frames = []
+    if include_barclays:
+        barclays_df = barclays_events(years, missing_ok=True)
+        if not barclays_df.empty:
+            frames.append(barclays_df)
     if citi_field_path is not None:
         frames.append(citi_field_events(path=citi_field_path))
     elif include_citi_field:
         citi_df = citi_field_events(years=years, missing_ok=True)
         if not citi_df.empty:
             frames.append(citi_df)
+    if not frames:
+        raise FileNotFoundError("No Barclays or Citi Field event CSVs found for the requested years.")
     base_events = pd.concat(frames, ignore_index=True) if len(frames) > 1 else frames[0]
     events = apply_overrides(base_events, overrides)
-    if box_scores_path is not None:
+    if box_scores_path is not None and Path(box_scores_path).exists():
         events = apply_box_scores(events, read_games(box_scores_path))
-    if tour_attendance_path is not None:
+    if tour_attendance_path is not None and Path(tour_attendance_path).exists():
         events = apply_tour_attendance(events, read_tour_attendance(tour_attendance_path))
     events = apply_runtimes(events, pd.read_csv(runtimes_path, dtype=str, keep_default_na=False))
     if calibrate:
