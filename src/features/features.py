@@ -11,7 +11,7 @@ Architecture & Modeling Design:
    pricing is evaluated at request time, not when the driver arrives.
 2. Spatial Topologies & Weights:
    - Barclays Center (Dense transit hub): 1.0 * Zone 189 + 0.25 * (Zones 49, 61, 62, 97, 181, 190).
-   - Citi Field (Isolated park/stadium): 1.0 * Zone 253 + 0.75 * (Zones 92, 93) (Flushing, Flushing Meadows).
+   - Citi Field (Isolated park/stadium): 1.0 * Zone 253 + 0.75 * Zone 93 (Flushing Meadows).
 3. Zero-Gap Continuous Time Grid:
    Late-night stadium hours often have zero ride requests. Reindexing against a global 
    master DatetimeIndex guarantees zero-filled rows rather than missing timestamps.
@@ -35,8 +35,10 @@ from src.config import (
     INTERIM_DATA_DIR,
     PROCESSED_DATA_DIR,
     VENUE_CONFIG,
-    ANALYSIS_YEARS
+    ANALYSIS_YEARS,
+    TIME_INTERVAL,
 )
+from src.processing.clean_tlc import resolve_anchor_timestamp
 
 
 def create_regular_time_grid(start_ts: pd.Timestamp, end_ts: pd.Timestamp, freq: str = "15min") -> pd.DatetimeIndex:
@@ -90,12 +92,14 @@ def aggregate_venue_demand(df: pd.DataFrame, venue_name: str, config: Dict[str, 
     if v_df.empty:
         raise ValueError(f"No records found for venue: {venue_name}")
 
-    # Bin rides to 15-minute intervals by request_datetime (surge pricing trigger)
-    v_df["timestamp_15m"] = v_df["request_datetime"].dt.floor("15min")
+    # Bin rides to 15-minute intervals by request_datetime with pickup_datetime fallback
+    anchor_ts = resolve_anchor_timestamp(v_df)
+    v_df = v_df[anchor_ts.notna()].copy()
+    v_df["timestamp_15m"] = anchor_ts.loc[v_df.index].dt.floor(TIME_INTERVAL)
 
     # Group by interval and zone to compute zone-level metrics
     grouped = v_df.groupby(["timestamp_15m", "PULocationID"]).agg(
-        raw_trips=("request_datetime", "count"),
+        raw_trips=("PULocationID", "count"),
         mean_fare=("base_passenger_fare", "mean"),
         median_fare=("base_passenger_fare", "median"),
         mean_driver_pay=("driver_pay", "mean")

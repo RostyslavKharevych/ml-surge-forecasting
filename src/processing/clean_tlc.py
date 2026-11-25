@@ -33,7 +33,12 @@ PROJECT_ROOT = Path.cwd()
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.config import INTERIM_DATA_DIR, ANALYSIS_YEARS
+from src.config import (
+    INTERIM_DATA_DIR,
+    ANALYSIS_YEARS,
+    PRIMARY_TIMESTAMP_COL,
+    FALLBACK_TIMESTAMP_COL,
+)
 
 # Operational, Telematics & Economic Thresholds
 MIN_TRIP_TIME_SEC = 60          # 1 minute minimum journey duration
@@ -42,6 +47,15 @@ MIN_TRIP_MILES = 0.1            # 0.1 mile minimum (excludes stationary cancella
 MAX_TRIP_MILES = 100.0          # 100 miles maximum (Tri-State regional transit cap)
 MAX_IMPLIED_SPEED_MPH = 75.0    # 75 mph velocity threshold (eliminates urban GPS drift)
 MIN_BASE_FARE = 0.01            # Valid positive passenger charge
+
+
+def resolve_anchor_timestamp(df: pd.DataFrame) -> pd.Series:
+    """Return PRIMARY_TIMESTAMP_COL as datetime64, falling back to FALLBACK_TIMESTAMP_COL."""
+    fallback = pd.to_datetime(df[FALLBACK_TIMESTAMP_COL], errors="coerce")
+    if PRIMARY_TIMESTAMP_COL not in df.columns:
+        return fallback
+    primary = pd.to_datetime(df[PRIMARY_TIMESTAMP_COL], errors="coerce")
+    return primary.fillna(fallback)
 
 
 def clean_venue_dataframe(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int]]:
@@ -67,14 +81,15 @@ def clean_venue_dataframe(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int
     df = df.drop_duplicates()
     audit_report["dropped_duplicates"] = initial_rows - len(df)
 
-    # 2. Datetime Parsing & Chronological Ordering
-    for col in ["request_datetime", "pickup_datetime", "dropoff_datetime"]:
+    # 2. Datetime Parsing & Chronological Ordering (request_datetime with pickup_datetime fallback)
+    for col in [FALLBACK_TIMESTAMP_COL, "dropoff_datetime"]:
         if not pd.api.types.is_datetime64_any_dtype(df[col]):
-            df[col] = pd.to_datetime(df[col])
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+    df[PRIMARY_TIMESTAMP_COL] = resolve_anchor_timestamp(df)
 
     valid_chronology = (
-        (df["request_datetime"] <= df["pickup_datetime"]) &
-        (df["pickup_datetime"] < df["dropoff_datetime"])
+        (df[PRIMARY_TIMESTAMP_COL] <= df[FALLBACK_TIMESTAMP_COL]) &
+        (df[FALLBACK_TIMESTAMP_COL] < df["dropoff_datetime"])
     )
     audit_report["dropped_bad_chronology"] = int((~valid_chronology).sum())
     df = df[valid_chronology].copy()
