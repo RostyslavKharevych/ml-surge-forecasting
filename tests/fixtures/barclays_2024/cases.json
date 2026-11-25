@@ -1,0 +1,115 @@
+[
+  {
+    "file": "a10-mens-basketball-championship-2024.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/a10-mens-basketball-championship-2024",
+    "calendar_dates": [
+      "2024-03-12",
+      "2024-03-13",
+      "2024-03-14",
+      "2024-03-16",
+      "2024-03-17"
+    ],
+    "expected_showings": 7,
+    "expected_status": "unknown"
+  },
+  {
+    "file": "brooklyn-nets-vs-new-york-knicks-20240123.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/brooklyn-nets-vs-new-york-knicks-20240123",
+    "calendar_dates": [
+      "2024-01-23"
+    ],
+    "expected_showings": 1,
+    "expected_status": "unknown"
+  },
+  {
+    "file": "disney-on-ice-2024.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/disney-on-ice-2024",
+    "calendar_dates": [
+      "2024-01-18",
+      "2024-01-19",
+      "2024-01-20",
+      "2024-01-21"
+    ],
+    "expected_showings": 8,
+    "expected_status": "unknown"
+  },
+  {
+    "file": "kehlani-2024.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/kehlani-2024",
+    "calendar_dates": [
+      "2024-09-20"
+    ],
+    "expected_showings": 1,
+    "expected_status": "unknown"
+  },
+  {
+    "file": "masters-of-ceremony-2024.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/masters-of-ceremony-2024",
+    "calendar_dates": [
+      "2024-11-10"
+    ],
+    "expected_showings": 1,
+    "expected_status": "cancelled"
+  },
+  {
+    "file": "new-york-liberty-vs-indiana-fever-20240518.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/new-york-liberty-vs-indiana-fever-20240518",
+    "calendar_dates": [
+      "2024-05-18"
+    ],
+    "expected_showings": 1,
+    "expected_status": "unknown"
+  },
+  {
+    "file": "myke-towers-2024.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/myke-towers-2024",
+    "calendar_dates": [
+      "2024-10-12"
+    ],
+    "expected_showings": 1,
+    "expected_status": "postponed",
+    "expected_unknown_times": 1,
+    "expected_issues": [
+      "explicitly_unknown_start_time"
+    ]
+  },
+  {
+    "file": "ncaa-march-madness-2024.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/ncaa-march-madness-2024",
+    "calendar_dates": [
+      "2024-03-22",
+      "2024-03-24"
+    ],
+    "expected_showings": 2,
+    "expected_status": "unknown",
+    "expected_unknown_times": 2,
+    "expected_issues": [
+      "session_count_discrepancy",
+      "explicitly_unknown_start_time",
+      "explicitly_unknown_start_time"
+    ]
+  },
+  {
+    "file": "reggae-love-fest-2024.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/reggae-love-fest-2024",
+    "calendar_dates": [
+      "2024-11-30"
+    ],
+    "expected_showings": 1,
+    "expected_status": "rescheduled",
+    "expected_unknown_times": 0,
+    "expected_issues": []
+  },
+  {
+    "file": "shakira-2024.html",
+    "source_url": "https://www.barclayscenter.com/events/detail/shakira-2024",
+    "calendar_dates": [
+      "2024-12-05",
+      "2024-12-06"
+    ],
+    "expected_showings": 2,
+    "expected_status": "cancelled",
+    "expected_unknown_times": 0,
+    "expected_issues": []
+  }
+]

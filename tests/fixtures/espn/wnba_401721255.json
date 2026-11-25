@@ -1,0 +1,46 @@
+{
+ "header": {
+  "id": "401721255",
+  "competitions": [
+   {
+    "date": "2024-09-22T17:00Z"
+   }
+  ]
+ },
+ "gameInfo": {
+  "venue": {
+   "fullName": "Barclays Center"
+  },
+  "attendance": 12115
+ },
+ "plays": [
+  {
+   "type": {
+    "id": "615",
+    "text": "Jumpball"
+   },
+   "wallclock": "2024-09-22T17:04:32Z"
+  },
+  {
+   "type": {
+    "id": "144",
+    "text": "Driving Floating Jump Shot"
+   },
+   "wallclock": "2024-09-22T17:04:47Z"
+  },
+  {
+   "type": {
+    "id": "412",
+    "text": "End Period"
+   },
+   "wallclock": "2024-09-22T18:58:00Z"
+  },
+  {
+   "type": {
+    "id": "402",
+    "text": "End Game"
+   },
+   "wallclock": "2024-09-22T18:58:03Z"
+  }
+ ]
+}

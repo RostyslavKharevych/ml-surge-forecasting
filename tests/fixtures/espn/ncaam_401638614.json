@@ -1,0 +1,46 @@
+{
+ "header": {
+  "id": "401638614",
+  "competitions": [
+   {
+    "date": "2024-03-22T16:15Z"
+   }
+  ]
+ },
+ "gameInfo": {
+  "venue": {
+   "fullName": "Barclays Center"
+  },
+  "attendance": 0
+ },
+ "plays": [
+  {
+   "type": {
+    "id": "615",
+    "text": "Jumpball"
+   },
+   "wallclock": "2024-03-22T16:16:18Z"
+  },
+  {
+   "type": {
+    "id": "598",
+    "text": "Lost Ball Turnover"
+   },
+   "wallclock": "2024-03-22T16:16:39Z"
+  },
+  {
+   "type": {
+    "id": "572",
+    "text": "LayUpShot"
+   },
+   "wallclock": "2024-03-22T18:48:24Z"
+  },
+  {
+   "type": {
+    "id": "402",
+    "text": "End Game"
+   },
+   "wallclock": "2024-03-22T18:48:24Z"
+  }
+ ]
+}
