@@ -11,11 +11,10 @@ import json
 import logging
 import re
 import time
-from urllib.error import HTTPError
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
 
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 
 from src.ingestion.box_scores import fill_blanks
@@ -119,16 +118,26 @@ def parse_touring_data(html, venue_name):
 
 def _fetch(url, path, parse=json.loads):
     # ponytail: a raw file is the cache; rerun after a failure to resume.
-    for wait in (5, 30, 120, None):
+    for wait in (5, 15, 30, None):
         if path.exists():
             break
         try:
-            with urlopen(Request(url, headers={"User-Agent": USER_AGENT}), timeout=30) as response:
-                path.write_bytes(response.read())
-            time.sleep(1)
-        except HTTPError as error:
-            if error.code != 429 or wait is None:
+            response = requests.get(
+                url,
+                headers={"User-Agent": USER_AGENT},
+                timeout=(5, 10),
+            )
+            if response.status_code == 429 and wait is not None:
+                log.warning("Rate limited (429) on %s; sleeping %ss", url, wait)
+                time.sleep(wait)
+                continue
+            response.raise_for_status()
+            path.write_bytes(response.content)
+            time.sleep(0.5)
+        except requests.Timeout as error:
+            if wait is None:
                 raise
+            log.warning("Timeout on %s (%s); retrying in %ss", url, error, wait)
             time.sleep(wait)
     return parse(path.read_text(encoding="utf-8"))
 
@@ -164,20 +173,26 @@ def match_concerts(concerts):
     """event_id, attendance, source for each concert night found in a box score. Touring Data
     is only asked for nights Wikipedia lacks."""
     RAW_DIR.mkdir(parents=True, exist_ok=True)
+    concerts = concerts[concerts.venue.isin(BOXSCORE_VENUES)]
+    grouped = list(concerts.groupby(["venue", "event_name", concerts.event_start.dt.year]))
+    total = len(grouped)
     found = []
-    for (venue, artist, year), group in concerts.groupby(
-            ["venue", "event_name", concerts.event_start.dt.year]):
+    for idx, ((venue, artist, year), group) in enumerate(grouped, start=1):
+        print(f"[{idx}/{total}] {artist} ({year})", flush=True)
         venue_name = BOXSCORE_VENUES[venue]
         unmatched = dict(zip(group.event_start.dt.date, group.event_id))
         sources = [(wikipedia_tours(artist, venue_name, year), parse_wikipedia),
                    (touring_data_tours(artist), parse_touring_data)]
         for pages, parse in sources:
-            for source, html in pages:
-                for first, last, attendance in parse(html, venue_name):
-                    for date in [date for date in unmatched if first <= date <= last]:
-                        found.append((unmatched.pop(date), attendance, source))
-                if not unmatched:
-                    break
+            try:
+                for source, html in pages:
+                    for first, last, attendance in parse(html, venue_name):
+                        for date in [date for date in unmatched if first <= date <= last]:
+                            found.append((unmatched.pop(date), attendance, source))
+                    if not unmatched:
+                        break
+            except requests.RequestException as error:
+                log.warning("Skipping source for %s (%s): %s", artist, year, error)
             if not unmatched:
                 break
     return pd.DataFrame(found, columns=ATTENDANCE_COLUMNS)
@@ -210,7 +225,9 @@ def main():
     parser.add_argument("--years", type=int, nargs="+", default=ANALYSIS_YEARS)
     years = parser.parse_args().years
     logging.basicConfig(format="%(message)s")
-    concerts = held_concerts(load_events(tour_attendance_path=None, calibrate=False))
+    concerts = held_concerts(
+        load_events(tour_attendance_path=None, include_citi_field=False, calibrate=False)
+    )
     concerts = concerts[concerts.event_start.dt.year.isin(years)]
     found = match_concerts(concerts)
     found.to_csv(ATTENDANCE_PATH, index=False)

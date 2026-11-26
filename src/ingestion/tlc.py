@@ -15,6 +15,7 @@ Design Principles:
    prevent redundant network downloads.
 """
 
+import argparse
 import sys
 from pathlib import Path
 from typing import List, Optional
@@ -199,6 +200,13 @@ def run_ingestion_pipeline(years: List[int] = ANALYSIS_YEARS, keep_raw: bool = T
 
 
 if __name__ == "__main__":
-    # Standard entry point: ingests full 2024-2025 batch
+    parser = argparse.ArgumentParser(description="Ingest monthly NYC TLC HVFHV parquets for target venue zones.")
+    parser.add_argument("--years", type=int, nargs="+", default=ANALYSIS_YEARS)
+    parser.add_argument(
+        "--delete-raw",
+        action="store_true",
+        help="Delete raw citywide TLC parquets after extracting venue zones.",
+    )
+    args = parser.parse_args()
     print(f"Starting ingestion for zones: {ALL_INGESTION_ZONES}")
-    run_ingestion_pipeline(years=[2024, 2025], keep_raw=True)
+    run_ingestion_pipeline(years=args.years, keep_raw=not args.delete_raw)

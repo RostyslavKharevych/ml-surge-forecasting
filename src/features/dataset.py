@@ -10,7 +10,7 @@ import logging
 import pandas as pd
 
 from src.features.baseline import add_baseline, drop_events_without_baseline, is_holiday, prediction_buckets
-from src.config import PROCESSED_DATA_DIR
+from src.config import PROCESSED_DATA_DIR, VENUE_CONFIG
 from src.processing.events import load_events
 from src.features.features import consolidate_demand_matrices, engineer_feature_lags
 from src.ingestion.weather import load_weather
@@ -18,6 +18,20 @@ from src.ingestion.weather import load_weather
 log = logging.getLogger(__name__)
 
 OUTPUT_PATH = PROCESSED_DATA_DIR / "event_dataset.parquet"
+MODEL_OUTPUT_PATH = PROCESSED_DATA_DIR / "model_dataset.parquet"
+MODEL_COLUMNS = [
+    "event_id",
+    "venue_zone_id",
+    "time_bin",
+    "mins_since_end",
+    "event_type",
+    "attendance_est",
+    "precipitation_mm",
+    "temp_f",
+    "y_actual",
+    "y_baseline",
+    "surge_delta",
+]
 # Grouped chronological event split (~65% train / 15% val / 20% test sorted by event_start).
 TRAIN_FRAC = 0.65
 VAL_FRAC = 0.15
@@ -87,13 +101,36 @@ def build_dataset(events, demand, weather):
                 ].reset_index(drop=True)
 
 
+def to_model_dataset(rows: pd.DataFrame) -> pd.DataFrame:
+    """Project `build_dataset` output onto the locked Contract 1 `model_dataset.parquet` schema."""
+    zone_map = {venue: int(cfg["core_zone"]) for venue, cfg in VENUE_CONFIG.items()}
+    model_df = pd.DataFrame({
+        "event_id": rows["event_id"].astype(str),
+        "venue_zone_id": rows["venue"].map(zone_map).astype("int64"),
+        "time_bin": pd.to_datetime(rows["time_bin"]),
+        "mins_since_end": rows["minutes_since_end"].astype("int64"),
+        "event_type": rows["event_type"].astype(str),
+        "attendance_est": rows["attendance"].astype("Int64"),
+        "precipitation_mm": rows["precipitation_mm"].astype("float64"),
+        "temp_f": rows["temp_f"].astype("float64"),
+        "y_actual": rows["weighted_demand"].astype("float64"),
+        "y_baseline": rows["baseline"].astype("float64"),
+        "surge_delta": rows["surge_delta"].astype("float64"),
+    })
+    return model_df[MODEL_COLUMNS].reset_index(drop=True)
+
+
 def main():
-    argparse.ArgumentParser(description=f"Build the training dataset into {OUTPUT_PATH}").parse_args()
+    argparse.ArgumentParser(description=f"Build the training dataset into {OUTPUT_PATH} and {MODEL_OUTPUT_PATH}").parse_args()
     logging.basicConfig(level=logging.INFO)
+    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
     rows = build_dataset(load_events(), consolidate_demand_matrices(), load_weather())
     rows.to_parquet(OUTPUT_PATH, index=False)
+    model_rows = to_model_dataset(rows)
+    model_rows.to_parquet(MODEL_OUTPUT_PATH, index=False)
     print(f"{OUTPUT_PATH}: {len(rows):,} rows")
-    print(rows.groupby("split").agg(events=("event_id", "nunique"), rows=("event_id", "size")))
+    print(f"{MODEL_OUTPUT_PATH}: {len(model_rows):,} rows")
+    print(rows.groupby(["venue", "split"]).agg(events=("event_id", "nunique"), rows=("event_id", "size")))
 
 
 if __name__ == "__main__":

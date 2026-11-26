@@ -15,10 +15,10 @@ Upstream intermediate event–ridership dataset (`src/features/dataset.py`) writ
 | `time_bin` | `datetime64` | Start timestamp of the 15-minute bucket (naive `America/New_York`) |
 | `mins_since_end` | `int` | Relative offset in minutes from `event_end` (`-30` through `+90`) |
 | `event_type` | `str` | Event category (`baseball`, `basketball`, `concert`, etc.) |
-| `attendance_est` | `int` | Verified or estimated event attendance |
+| `attendance_est` | `Int64` | Verified or estimated event attendance (nullable when unreported) |
 | `precipitation_mm` | `float` | Hourly rainfall accumulation (`mm`) from Open-Meteo |
 | `temp_f` | `float` | Outdoor ambient temperature (`°F`) |
-| `y_actual` | `int` | Observed pickup demand in the bucket |
+| `y_actual` | `float` | Observed spatially weighted pickup demand in the bucket |
 | `y_baseline` | `float` | Counterfactual non-event, non-holiday historical median pickup count |
 | `surge_delta` | `float` | Target variable ($\Delta y_t = y_{\text{actual}} - y_{\text{baseline}}$) |
 

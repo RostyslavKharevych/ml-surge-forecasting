@@ -267,6 +267,32 @@ class CitiFieldAdapterTests(unittest.TestCase):
         self.assertEqual(citi_concert.event_start, pd.Timestamp("2024-11-15 20:00"))
         self.assertTrue(pd.isna(citi_concert.event_end))
 
+    def test_load_events_falls_back_to_citi_field_when_barclays_missing(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            citi_csv = tmp / "citi_field_events_2024.csv"
+            pd.DataFrame([{
+                "event_type": "game",
+                "event_name": "Mets vs. Braves",
+                "event_date": "2024-05-10",
+                "start_time_local": "2024-05-10 19:10:00-0400",
+                "duration_minutes": "150",
+                "end_time_local": "",
+                "attendance": "32500",
+            }]).to_csv(citi_csv, index=False)
+
+            with patch("src.processing.events.output_dir_for_year", return_value=tmp / "missing_barclays"):
+                events = load_events(
+                    years=[2024],
+                    citi_field_path=citi_csv,
+                    box_scores_path=tmp / "missing_box.csv",
+                    tour_attendance_path=tmp / "missing_tour.csv",
+                    calibrate=False,
+                )
+
+        self.assertEqual(list(events.venue), ["citi_field"])
+        self.assertEqual(list(events.event_id), ["CITI_FIELD_20240510_1910"])
+
 
 class HolidayHelperTests(unittest.TestCase):
     def test_federal_and_nyc_school_holiday_flags(self):
