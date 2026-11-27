@@ -112,7 +112,7 @@ python -m src.features.dataset
 
 `src.features.dataset` produces both `data/processed/event_dataset.parquet` and the Contract 1 modeling handoff table `data/processed/model_dataset.parquet`:
 - **Coverage:** **492 events** (**3,936 rows**, 8 buckets per event from `-30` to `+75` min relative to `event_end`) across **Barclays Center** (`venue_zone_id = 189`: 323 events / 2,584 rows) and **Citi Field** (`venue_zone_id = 253`: 169 events / 1,352 rows).
-- **Validation Split:** Grouped chronologically by `event_start` (**~65% Train / 15% Validation / 20% Test** — 320 train / 74 val / 98 test events) so both MLB and NBA/concert seasons appear in training with zero leakage.
+- **Validation Split:** Grouped chronologically by `event_start` (**~65% Train / 15% Validation / 20% Test** — 320 train / 74 val / 98 test events), keeping each event curve together. Forecast-time input limitations are documented in the modeling guide below.
 - See [CONTRACTS.md](CONTRACTS.md) for exact column types and downstream interfaces.
 
 ### 4. Run Tests
@@ -123,11 +123,20 @@ python -m unittest discover -s tests -v
 python -m pytest -q
 ```
 
+### 5. Modeling and inference
+
+See [modeling-preparation.md](docs/modeling-preparation.md) for reproducible
+training, frozen evaluation/export commands, the macOS OpenMP workaround, and
+backend inference inputs. LightGBM is primary; Ridge is retained for comparison.
+Contract 2 artifacts live in `data/artifacts/` and contain test-only predictions
+for July–December 2025. The eight available buckets end at +75, so the locked
+nine-bucket/+90 requirement remains an integration limitation.
+
 ---
 
 ## Roadmap (Steps 2–4, per [CONTRACTS.md](CONTRACTS.md))
 
 1. **Step 1 (Complete):** Dual-venue ingestion, cleaning, clean-week baseline, and `data/processed/model_dataset.parquet`.
-2. **Step 2 (Modeling — `src/models/train.py`, `src/models/evaluate.py`):** Train baseline, Ridge, and LightGBM/XGBoost models; export `data/artifacts/model.joblib`, `predictions_2025.parquet`, and `metrics.json` (Contract 2).
+2. **Step 2 (Modeling implemented):** Control-median, Ridge and LightGBM comparison, frozen test evaluation, Contract 2 exports, and reusable inference. See the modeling guide above for results and remaining interface limitations.
 3. **Step 3 (API — `src/api.py`):** Serve FastAPI endpoints `GET /events`, `GET /demands/{event_id}`, and `POST /simulate` (Contract 3).
 4. **Step 4 (Demo — `app.py`):** Interactive Streamlit surge curve dashboard backed by Contract 3.
