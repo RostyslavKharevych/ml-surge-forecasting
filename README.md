@@ -24,6 +24,8 @@ ml-surge-forecasting/
 ├── scripts/
 │   ├── run_pipeline.py           # One-command Step 1 data pipeline runner
 │   └── dev/                      # Diagnostic inspection scripts
+├── data/
+│   └── artifacts/                # Contract 2 model, holdout predictions, metrics & metadata
 ├── src/
 │   ├── config.py                 # Canonical zones, weights, paths, timestamp anchors
 │   ├── ingestion/
@@ -41,17 +43,23 @@ ml-surge-forecasting/
 │   ├── features/
 │   │   ├── features.py           # Continuous 15-min grid, spatial weighting, lags
 │   │   ├── baseline.py           # Clean-week baseline & surge_delta target
-│   │   └── dataset.py            # Grouped 65/15/20 split -> event & model datasets
+│   │   ├── dataset.py            # Grouped 65/15/20 split -> event & model datasets
+│   │   └── modeling.py           # Advance-curve features & training-fitted preprocessing
 │   └── models/
 │       ├── train.py              # Step 2: Ridge, LightGBM, XGBoost training
-│       └── evaluate.py           # Step 2: RMSE, MAE, SHAP & artifact export
+│       ├── evaluate.py           # RMSE, MAE, R², peak errors & rolling persistence
+│       ├── holdout.py            # Frozen test evaluation, TreeSHAP & surge curve plots
+│       ├── diagnostics.py        # Chronological cross-venue transfer & error analysis
+│       ├── export.py             # Contract 2 artifact generation & verification
+│       └── inference.py          # Serialized preprocessing & complete event surge curves
 ├── notebooks/                    # Exploratory & verification notebooks
 ├── tests/                        # Unit tests & offline HTML/JSON fixtures
 └── docs/
     ├── PRD.md                    # Project requirements & validation strategy
     ├── GUIDE.md                  # Step-by-step execution walkthrough
     ├── barclays_scraper.md       # Barclays crawler manual & audit notes
-    └── merge-pipeline-summary.md # Event-ridership merge decisions
+    ├── merge-pipeline-summary.md # Event-ridership merge decisions
+    └── modeling-preparation.md   # Modeling results, reproduction & backend handoff
 ```
 
 ---
@@ -127,7 +135,10 @@ python -m pytest -q
 
 See [modeling-preparation.md](docs/modeling-preparation.md) for reproducible
 training, frozen evaluation/export commands, the macOS OpenMP workaround, and
-backend inference inputs. LightGBM is primary; Ridge is retained for comparison.
+backend inference inputs. **LightGBM is the primary advance-curve model**, with
+Ridge and XGBoost comparisons against the control-median baseline. Evaluation
+includes peak magnitude/timing, a separate rolling one-step persistence benchmark,
+chronological cross-venue transfer experiments, and model diagnostics.
 Contract 2 artifacts live in `data/artifacts/` and contain test-only predictions
 for July–December 2025. The eight available buckets end at +75, so the locked
 nine-bucket/+90 requirement remains an integration limitation.
@@ -137,6 +148,6 @@ nine-bucket/+90 requirement remains an integration limitation.
 ## Roadmap (Steps 2–4, per [CONTRACTS.md](CONTRACTS.md))
 
 1. **Step 1 (Complete):** Dual-venue ingestion, cleaning, clean-week baseline, and `data/processed/model_dataset.parquet`.
-2. **Step 2 (Modeling implemented):** Control-median, Ridge and LightGBM comparison, frozen test evaluation, Contract 2 exports, and reusable inference. See the modeling guide above for results and remaining interface limitations.
+2. **Step 2 (Modeling implemented):** Control-median, Ridge, LightGBM (primary), and XGBoost comparisons; frozen test/peak evaluation, rolling persistence, cross-venue transfer, diagnostics, Contract 2 exports, and reusable inference. See the modeling guide above for results and remaining interface limitations.
 3. **Step 3 (API — `src/api.py`):** Serve FastAPI endpoints `GET /events`, `GET /demands/{event_id}`, and `POST /simulate` (Contract 3).
 4. **Step 4 (Demo — `app.py`):** Interactive Streamlit surge curve dashboard backed by Contract 3.
