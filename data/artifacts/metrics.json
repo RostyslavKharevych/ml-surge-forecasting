@@ -1,0 +1,13 @@
+{
+  "baseline_rmse": 46.42582860201774,
+  "ridge_rmse": 33.290651744132276,
+  "lgbm_rmse": 33.979234227400056,
+  "rmse_reduction_pct": 26.80963323523047,
+  "top_features": [
+    "mins_since_end",
+    "attendance_est",
+    "cos_time_of_day",
+    "temp_f",
+    "month"
+  ]
+}

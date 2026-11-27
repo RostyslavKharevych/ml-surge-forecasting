@@ -235,6 +235,12 @@ env/
 data/raw/*
 data/interim/*
 data/processed/*
+data/artifacts/*
+!data/artifacts/model.joblib
+!data/artifacts/predictions_2025.parquet
+!data/artifacts/metrics.json
+!data/artifacts/metadata.json
+reports/heldout/
 !data/**/.gitkeep
 
 # Operating system / IDE files
